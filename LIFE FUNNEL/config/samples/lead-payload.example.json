@@ -1,0 +1,32 @@
+{
+  "source": "funnel_quiz",
+  "page": "/results",
+  "answers": {
+    "employment": "business_owner",
+    "income_range": "150_250k",
+    "coverage_existing": "life_only",
+    "primary_concern": "taxes",
+    "assets_range": "500k_1m",
+    "decision_timeline": "90_days",
+    "goals_open": "Considering exit timeline in 3-5 years."
+  },
+  "tags": [
+    "income:150_250k",
+    "work:business_owner",
+    "coverage:life_only",
+    "focus:taxes",
+    "assets:500k_1m",
+    "timeline:90_days",
+    "segment:business",
+    "intent:high"
+  ],
+  "consent_email": true,
+  "consent_sms": true,
+  "first_name": "Jamie",
+  "last_name": "Rivera",
+  "email": "jamie@example.com",
+  "phone": "+15555550100",
+  "pipeline_stage": "quiz_completed",
+  "submitted_at": "2026-05-02T22:00:00.000Z",
+  "session_started_at": "2026-05-02T21:58:00.000Z"
+}
