@@ -72,6 +72,8 @@ export interface LeadPayload {
   tags: string[];
   consent_email: boolean;
   consent_sms: boolean;
+  /** Express consent to receive an automated/AI-assisted outbound call */
+  consent_call: boolean;
   first_name?: string;
   last_name?: string;
   email?: string;

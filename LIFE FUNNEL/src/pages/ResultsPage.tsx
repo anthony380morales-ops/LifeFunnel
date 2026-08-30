@@ -3,7 +3,6 @@ import { Link, Navigate } from "react-router-dom";
 import { useFunnel } from "@/context/FunnelContext";
 import { generateQuizResult, isQuizComplete } from "@/lib/quizLogic";
 import type { QuizAnswers } from "@/types/funnel";
-import { CallNowButton } from "@/components/CallNowButton";
 import { BookStrategyButton } from "@/components/BookStrategyButton";
 import { LeadCaptureForm } from "@/components/LeadCaptureForm";
 
@@ -85,20 +84,20 @@ export function ResultsPage() {
       >
         <h2 style={{ marginTop: 0 }}>Talk it through — fastest path</h2>
         <p style={{ color: "var(--muted)", marginBottom: "1rem" }}>
-          Speak with a licensed professional about your situation. No cost for this introductory strategy review when
-          offered — timing subject to availability.
+          Drop your number below and a licensed professional calls you right back — usually within a minute. No cost for
+          this introductory strategy review when offered; educational conversation, not a pitch.
         </p>
-        <CallNowButton />
-        <p style={{ fontSize: "0.9rem", color: "var(--muted)", margin: "1rem 0 0" }}>
-          Prefer to schedule? Use the secondary option below — we still recommend a quick call first when possible.
-        </p>
-        <div className="stack stack--row-md" style={{ marginTop: "0.5rem" }}>
-          <BookStrategyButton />
-        </div>
+        <LeadCaptureForm answers={merged} />
       </div>
 
-      <div style={{ marginTop: "2rem" }}>
-        <LeadCaptureForm answers={merged} />
+      <div className="card stack" style={{ marginTop: "1.25rem" }}>
+        <h3 style={{ marginTop: 0 }}>Prefer to pick a time instead?</h3>
+        <p style={{ color: "var(--muted)", marginBottom: "0.75rem" }}>
+          If now isn’t good, schedule your strategy review for later — we’ll call you at the time you choose.
+        </p>
+        <div className="stack stack--row-md">
+          <BookStrategyButton />
+        </div>
       </div>
 
       <p className="footer-note" style={{ marginTop: "2rem" }}>

@@ -23,3 +23,17 @@ export function formatPhoneDisplay(raw: string | undefined): string {
 export function envPhone(): string {
   return import.meta.env.VITE_BUSINESS_PHONE?.trim() || "+18005550199";
 }
+
+/** Normalize a US/E.164 phone to strict E.164 (+1XXXXXXXXXX), or null if not valid */
+export function toE164(raw: string | undefined): string | null {
+  if (!raw) return null;
+  const cleaned = raw.trim();
+  if (cleaned.startsWith("+")) {
+    const d = cleaned.replace(/[^\d]/g, "");
+    return d.length >= 11 && d.length <= 15 ? `+${d}` : null;
+  }
+  const d = cleaned.replace(/\D/g, "");
+  if (d.length === 10) return `+1${d}`;
+  if (d.length === 11 && d.startsWith("1")) return `+${d}`;
+  return null;
+}

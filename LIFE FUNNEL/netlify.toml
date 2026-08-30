@@ -1,0 +1,19 @@
+# Netlify configuration for the NXG Life Group funnel.
+# When connecting the GitHub repo in Netlify, set the site's
+# "Base directory" to:  LIFE FUNNEL
+# (everything below is then relative to that base directory).
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+  functions = "netlify/functions"
+
+[functions]
+  node_bundler = "esbuild"
+
+# SPA fallback for client-side routes (/quiz, /results).
+# Serverless function routes (/.netlify/functions/*) are matched first by Netlify.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

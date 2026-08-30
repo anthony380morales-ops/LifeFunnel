@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import { CallNowButton } from "@/components/CallNowButton";
 import { BookStrategyButton } from "@/components/BookStrategyButton";
 
 export function LandingPage() {
@@ -19,28 +18,27 @@ export function LandingPage() {
                 strategies — framed as education and suitability review, not hype.
               </p>
               <div className="stack" style={{ marginTop: "1.5rem" }}>
-                <CallNowButton />
+                <Link className="btn btn--primary btn--call" to="/quiz" state={{ reset: true }}>
+                  Start the 2-minute check-in → get an instant callback
+                </Link>
                 <div className="stack stack--row-md">
-                  <Link className="btn btn--primary" to="/quiz" state={{ reset: true }}>
-                    Start the 2-minute clarity check-in
-                  </Link>
                   <BookStrategyButton />
                 </div>
                 <p className="footer-note" style={{ marginTop: "0.5rem" }}>
-                  Prefer scheduling? Booking stays available — we still route serious visitors to a quick call first when
-                  possible.
+                  Finish the quick check-in, drop your number, and a licensed professional calls you back — usually
+                  within a minute. Prefer to schedule instead? Booking stays available.
                 </p>
               </div>
             </div>
             <div className="card stack">
-              <p className="eyebrow">Why call first</p>
+              <p className="eyebrow">Why we call you back</p>
               <p style={{ color: "var(--muted)", marginBottom: 0 }}>
-                Warm Instagram and Meta traffic converts best when humans clarify facts fast — underwriting, timelines,
-                and tradeoffs don’t fit in a generic form.
+                Warm Instagram and Meta traffic converts best when a real conversation clarifies facts fast —
+                underwriting, timelines, and tradeoffs don’t fit in a generic form.
               </p>
               <ul style={{ margin: "1rem 0 0", paddingLeft: "1.2rem", color: "var(--muted)" }}>
                 <li>No hypothetical returns pitched here — we discuss mechanics and fit.</li>
-                <li>Quiz pre-frames intent so your time isn’t wasted.</li>
+                <li>The quiz pre-frames your intent so the call is about your facts, not a script.</li>
                 <li>If we’re not the right fit, we’ll say so.</li>
               </ul>
             </div>
@@ -157,9 +155,8 @@ export function LandingPage() {
               </p>
             </div>
             <div className="stack" style={{ alignItems: "flex-start" }}>
-              <CallNowButton variant="secondary" />
-              <Link className="btn btn--secondary" to="/quiz" state={{ reset: true }}>
-                Take the clarity check-in
+              <Link className="btn btn--primary" to="/quiz" state={{ reset: true }}>
+                Take the check-in &amp; get a callback
               </Link>
               <a className="footer-note" href="https://nxglifegroup.com" target="_blank" rel="noopener noreferrer">
                 nxglifegroup.com
