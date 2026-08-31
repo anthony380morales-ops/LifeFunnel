@@ -83,6 +83,17 @@ export const handler = async (event) => {
   const agentId = process.env.RETELL_AGENT_ID;
   const customerName = [lead.first_name, lead.last_name].filter(Boolean).join(" ") || "there";
 
+  // Friendly, speakable version of the quiz's top-priority answer.
+  const CONCERN_LABELS = {
+    taxes: "being tax-smart with your money",
+    retirement_income: "reliable retirement income",
+    protect_family: "protecting your family",
+    grow_safely: "growing your money safely",
+    legacy: "leaving a legacy for your loved ones",
+  };
+  const primaryConcern = lead?.answers?.primary_concern ?? "";
+  const primary_concern_label = CONCERN_LABELS[primaryConcern] ?? "";
+
   // Current date/time in Pacific, so Greece computes real future dates for Cal.com.
   const now = new Date();
   const current_datetime_pt = new Intl.DateTimeFormat("en-US", {
@@ -106,7 +117,8 @@ export const handler = async (event) => {
       customer_phone: to,
       current_datetime_pt,
       current_date_pt,
-      primary_concern: lead?.answers?.primary_concern ?? "",
+      primary_concern: primaryConcern,
+      primary_concern_label,
       decision_timeline: lead?.answers?.decision_timeline ?? "",
       employment: lead?.answers?.employment ?? "",
       source: "life_funnel",
