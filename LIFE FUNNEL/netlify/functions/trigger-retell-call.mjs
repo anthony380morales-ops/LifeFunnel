@@ -83,6 +83,17 @@ export const handler = async (event) => {
   const agentId = process.env.RETELL_AGENT_ID;
   const customerName = [lead.first_name, lead.last_name].filter(Boolean).join(" ") || "there";
 
+  // Current date/time in Pacific, so Greece computes real future dates for Cal.com.
+  const now = new Date();
+  const current_datetime_pt = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Los_Angeles",
+    dateStyle: "full",
+    timeStyle: "short",
+  }).format(now);
+  const current_date_pt = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Los_Angeles",
+  }).format(now); // YYYY-MM-DD
+
   const payload = {
     from_number: from,
     to_number: to,
@@ -93,6 +104,8 @@ export const handler = async (event) => {
       customer_first_name: (lead.first_name ?? "").toString().trim(),
       customer_email: (lead.email ?? "").toString().trim(),
       customer_phone: to,
+      current_datetime_pt,
+      current_date_pt,
       primary_concern: lead?.answers?.primary_concern ?? "",
       decision_timeline: lead?.answers?.decision_timeline ?? "",
       employment: lead?.answers?.employment ?? "",
