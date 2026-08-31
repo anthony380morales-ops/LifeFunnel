@@ -39,12 +39,13 @@ export function LeadCaptureForm({ answers }: Props) {
       setErrorMsg("Enter a valid mobile number so we can call you right back.");
       return;
     }
-    if (!consent_call) {
-      setErrorMsg("Please check the box authorizing us to call you at this number.");
+    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+    if (!emailOk) {
+      setErrorMsg("Enter your email so we can send your appointment confirmation.");
       return;
     }
-    if (email.trim() && !consent_email) {
-      setErrorMsg("Check the email box to consent, or remove your email.");
+    if (!consent_call) {
+      setErrorMsg("Please check the box authorizing us to call you at this number.");
       return;
     }
 
@@ -151,7 +152,9 @@ export function LeadCaptureForm({ answers }: Props) {
       </label>
 
       <label className="stack" style={{ gap: "0.35rem" }}>
-        <span style={{ fontSize: "0.9rem", color: "var(--muted)" }}>Email (optional — for your written recap)</span>
+        <span style={{ fontSize: "0.9rem", color: "var(--muted)" }}>
+          Email <span style={{ color: "var(--accent)" }}>(required — for your appointment confirmation)</span>
+        </span>
         <input
           className="input"
           style={fieldStyle}
@@ -160,6 +163,7 @@ export function LeadCaptureForm({ answers }: Props) {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="you@example.com"
+          required
         />
       </label>
       <label className="stack" style={{ gap: "0.35rem", alignItems: "flex-start", flexDirection: "row" }}>
@@ -170,7 +174,8 @@ export function LeadCaptureForm({ answers }: Props) {
           style={{ width: 22, height: 22, marginTop: 4 }}
         />
         <span style={{ fontSize: "0.88rem", color: "var(--muted)" }}>
-          Email me my clarity recap. I can unsubscribe anytime. (Only needed if you entered an email.)
+          Also email me my clarity recap and helpful follow-ups. I can unsubscribe anytime. (Optional — your
+          appointment confirmation is sent either way.)
         </span>
       </label>
 

@@ -90,6 +90,9 @@ export const handler = async (event) => {
     // Passed to Greece so it can greet by name and reference the quiz answers.
     retell_llm_dynamic_variables: {
       customer_name: customerName,
+      customer_first_name: (lead.first_name ?? "").toString().trim(),
+      customer_email: (lead.email ?? "").toString().trim(),
+      customer_phone: to,
       primary_concern: lead?.answers?.primary_concern ?? "",
       decision_timeline: lead?.answers?.decision_timeline ?? "",
       employment: lead?.answers?.employment ?? "",
