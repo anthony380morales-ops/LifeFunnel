@@ -31,6 +31,7 @@ export interface Lead {
   call_outcome: string | null;
   retell_call_id: string | null;
   transcript: string | null;
+  transcript_url: string | null;
   recording_url: string | null;
   appointment_at: string | null;
   opted_out: boolean | null;

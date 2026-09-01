@@ -12,8 +12,12 @@ export function DashboardApp() {
   const [session, setSession] = useState<Session | null>(null);
   const [ready, setReady] = useState(false);
 
+  // `/dashboard?demo` renders the command center with sample data — a
+  // credential-free preview before Supabase is wired / real leads exist.
+  const demo = typeof window !== "undefined" && new URLSearchParams(window.location.search).has("demo");
+
   useEffect(() => {
-    if (!supabase) {
+    if (demo || !supabase) {
       setReady(true);
       return;
     }
@@ -23,7 +27,9 @@ export function DashboardApp() {
     });
     const { data: sub } = supabase.auth.onAuthStateChange((_event, s) => setSession(s));
     return () => sub.subscription.unsubscribe();
-  }, []);
+  }, [demo]);
+
+  if (demo) return <Dashboard demo />;
 
   if (!supabaseReady) {
     return (

@@ -1,10 +1,11 @@
 import { useState, type FormEvent } from "react";
 import { supabase } from "@/dashboard/supabase";
+import { siteConfig } from "@/site/siteConfig";
+import "@/dashboard/dashboard.css";
 
 /**
- * STARTER — Athena: restyle freely into the NXG "Admin Portal" login.
- * Auth is Supabase email/password. Create the admin user in Supabase →
- * Authentication → Users → Add user.
+ * NXG Life · Admin Portal login. Supabase email/password auth. Create the admin
+ * user in Supabase → Authentication → Users → Add user.
  */
 export function LoginPage() {
   const [email, setEmail] = useState("");
@@ -24,60 +25,47 @@ export function LoginPage() {
   }
 
   return (
-    <section
-      className="section container"
-      style={{ maxWidth: 420, minHeight: "100vh", display: "grid", placeItems: "center" }}
-    >
-      <form className="card stack" onSubmit={onSubmit} style={{ width: "100%" }}>
-        <p className="eyebrow" style={{ textAlign: "center" }}>NXG Life · Admin Portal</p>
-        <h1 style={{ textAlign: "center", marginTop: 0 }}>Welcome back</h1>
+    <div className="dash-login">
+      <form className="dash-login-card" onSubmit={onSubmit}>
+        {siteConfig.logoSrc ? <img className="logo" src={siteConfig.logoSrc} alt={`${siteConfig.companyName} logo`} /> : null}
+        <p className="eyebrow">{siteConfig.companyName} · Admin Portal</p>
+        <h1>Welcome back</h1>
 
-        <label className="stack" style={{ gap: "0.35rem" }}>
-          <span style={{ fontSize: "0.9rem", color: "var(--muted)" }}>Email</span>
-          <input
-            className="input"
-            type="email"
-            autoComplete="username"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            style={inputStyle}
-          />
-        </label>
-        <label className="stack" style={{ gap: "0.35rem" }}>
-          <span style={{ fontSize: "0.9rem", color: "var(--muted)" }}>Password</span>
-          <input
-            className="input"
-            type="password"
-            autoComplete="current-password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            style={inputStyle}
-          />
-        </label>
+        <div className="dash-login-form">
+          <div className="dash-field">
+            <label htmlFor="email">Email</label>
+            <input
+              id="email"
+              className="dash-input"
+              type="email"
+              autoComplete="username"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+          <div className="dash-field">
+            <label htmlFor="password">Password</label>
+            <input
+              id="password"
+              className="dash-input"
+              type="password"
+              autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
 
-        {error ? (
-          <p role="alert" style={{ color: "var(--danger)", margin: 0 }}>{error}</p>
-        ) : null}
+          {error ? <p role="alert" style={{ color: "var(--danger)", margin: 0, fontSize: "0.9rem" }}>{error}</p> : null}
 
-        <button type="submit" className="btn btn--primary" disabled={loading}>
-          {loading ? "Signing in…" : "Sign in"}
-        </button>
-        <p className="footer-note" style={{ textAlign: "center", margin: 0 }}>
-          NXG Life Group · CA License #4490102
-        </p>
+          <button type="submit" className="dash-btn dash-btn--primary" disabled={loading} style={{ minHeight: 48 }}>
+            {loading ? "Signing in…" : "Sign in"}
+          </button>
+        </div>
+
+        <p className="dash-login-foot">NXG Life Group · CA License #{siteConfig.advisor.license}</p>
       </form>
-    </section>
+    </div>
   );
 }
-
-const inputStyle = {
-  minHeight: "var(--tap-min)",
-  borderRadius: "var(--radius-sm)",
-  border: "1px solid var(--border)",
-  background: "rgba(15,23,42,0.65)",
-  color: "var(--text)",
-  padding: "0 1rem",
-  fontSize: "1rem",
-} as const;

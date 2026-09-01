@@ -1,17 +1,38 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { supabase, type Lead } from "@/dashboard/supabase";
+import { siteConfig } from "@/site/siteConfig";
+import { LeadDrawer } from "@/dashboard/LeadDrawer";
+import { DEMO_LEADS } from "@/dashboard/demoLeads";
+import {
+  callWindow,
+  fmtDateTime,
+  fullName,
+  intentBucket,
+  isAwaitingAction,
+  STAGE_LABEL,
+} from "@/dashboard/leadHelpers";
+import "@/dashboard/dashboard.css";
 
 /**
- * STARTER dashboard — a live, realtime leads table + KPIs, wired to Supabase.
- * Athena: this proves the data flow; restyle into the modern-futuristic command
- * center and add the intent/compliance/outreach panels + lead detail view.
+ * NXG Life · Command Center — a realtime, glassmorphic admin dashboard over the
+ * Supabase `leads` table: KPIs, intent distribution, compliance, an outreach
+ * queue, a TCPA quiet-hours badge, and a recent-leads table that opens a full
+ * lead-detail drawer (editable stage + notes, Re-call / Mark DNC).
  */
-export function Dashboard() {
-  const [leads, setLeads] = useState<Lead[]>([]);
-  const [loading, setLoading] = useState(true);
+export function Dashboard({ demo = false }: { demo?: boolean } = {}) {
+  const [leads, setLeads] = useState<Lead[]>(demo ? DEMO_LEADS : []);
+  const [loading, setLoading] = useState(!demo);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [now, setNow] = useState(() => new Date());
+
+  // Tick each minute so the TCPA window badge stays accurate.
+  useEffect(() => {
+    const t = setInterval(() => setNow(new Date()), 60_000);
+    return () => clearInterval(t);
+  }, []);
 
   useEffect(() => {
-    if (!supabase) return;
+    if (demo || !supabase) return;
     let active = true;
 
     supabase
@@ -47,7 +68,7 @@ export function Dashboard() {
       active = false;
       supabase!.removeChannel(channel);
     };
-  }, []);
+  }, [demo]);
 
   const kpis = useMemo(() => {
     const startOfToday = new Date();
@@ -56,78 +77,159 @@ export function Dashboard() {
     return {
       total: leads.length,
       today: leads.filter((l) => new Date(l.created_at) >= startOfToday).length,
-      inProgress: leads.filter((l) => ["call_intent", "transferred", "contacted"].includes(l.pipeline_stage ?? "")).length,
+      inProgress: leads.filter((l) =>
+        ["call_intent", "transferred", "contacted"].includes(l.pipeline_stage ?? ""),
+      ).length,
       booked: leads.filter(isBooked).length,
       converted: leads.filter((l) => l.pipeline_stage === "converted").length,
     };
   }, [leads]);
 
+  const intent = useMemo(() => {
+    const buckets = { Protection: 0, Retirement: 0, IBC: 0, Other: 0 } as Record<string, number>;
+    leads.forEach((l) => { buckets[intentBucket(l)] += 1; });
+    return buckets;
+  }, [leads]);
+
+  const compliance = useMemo(() => {
+    const dnc = leads.filter((l) => l.opted_out).length;
+    const optedIn = leads.filter((l) => l.consent_call && !l.opted_out).length;
+    const optedOut = leads.filter((l) => !l.consent_call && !l.opted_out).length;
+    return { optedIn, optedOut, dnc };
+  }, [leads]);
+
+  const queue = useMemo(() => leads.filter(isAwaitingAction).slice(0, 12), [leads]);
+  const win = useMemo(() => callWindow("America/Los_Angeles", now), [now]);
+  const selected = useMemo(() => leads.find((l) => l.id === selectedId) ?? null, [leads, selectedId]);
+
+  const intentMax = Math.max(1, ...Object.values(intent));
+  const intentColor: Record<string, string> = { Protection: "", Retirement: "blue", IBC: "green", Other: "slate" };
+
   return (
-    <main className="section container" style={{ maxWidth: 1100 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem" }}>
-        <div>
-          <p className="eyebrow" style={{ margin: 0 }}>NXG Life · Command Center</p>
-          <h1 style={{ margin: "0.25rem 0 0" }}>Leads</h1>
+    <div className="dash">
+      <header className="dash-top">
+        <div className="dash-brand">
+          {siteConfig.logoSrc ? <img src={siteConfig.logoSrc} alt="" /> : null}
+          <div>
+            <small>Command Center</small>
+            <b>{siteConfig.companyName}</b>
+          </div>
         </div>
-        <button className="btn btn--secondary" onClick={() => supabase?.auth.signOut()}>Sign out</button>
+        <div className="dash-top-right">
+          <span className={`dash-window ${win.open ? "is-open" : "is-quiet"}`} title="TCPA calling window (8am–9pm PT)">
+            <span className="dot" /> {win.label}
+          </span>
+          <button className="dash-btn" onClick={() => supabase?.auth.signOut()}>Sign out</button>
+        </div>
+      </header>
+
+      <div className="dash-wrap">
+        {/* KPI row */}
+        <div className="dash-kpis">
+          <Kpi n={kpis.total} l="Total leads" />
+          <Kpi n={kpis.today} l="New today" accent />
+          <Kpi n={kpis.inProgress} l="In progress" />
+          <Kpi n={kpis.booked} l="Booked" />
+          <Kpi n={kpis.converted} l="Converted" />
+        </div>
+
+        {/* Panels */}
+        <div className="dash-panels">
+          <div className="dash-panel">
+            <h3>Intent distribution <span className="muted">{leads.length} leads</span></h3>
+            {(["Protection", "Retirement", "IBC", "Other"] as const).map((k) => (
+              <div className="dash-bar" key={k}>
+                <div className="dash-bar-top"><span>{k}</span><span className="c">{intent[k]}</span></div>
+                <div className="dash-bar-track">
+                  <div className={`dash-bar-fill ${intentColor[k]}`} style={{ width: `${(intent[k] / intentMax) * 100}%` }} />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="dash-panel">
+            <h3>Compliance status</h3>
+            <div className="dash-pills">
+              <div className="dash-pill"><span className="k"><span className="dot green" /> Opted-in</span><span className="v">{compliance.optedIn}</span></div>
+              <div className="dash-pill"><span className="k"><span className="dot amber" /> No call consent</span><span className="v">{compliance.optedOut}</span></div>
+              <div className="dash-pill"><span className="k"><span className="dot red" /> Do-not-contact</span><span className="v">{compliance.dnc}</span></div>
+            </div>
+          </div>
+
+          <div className="dash-panel">
+            <h3>Outreach queue <span className="muted">{queue.length} awaiting</span></h3>
+            {queue.length === 0 ? (
+              <p className="dash-empty">Nothing waiting — you're all caught up.</p>
+            ) : (
+              <div className="dash-queue">
+                {queue.map((l) => (
+                  <div className="dash-queue-row" key={l.id} onClick={() => setSelectedId(l.id)}>
+                    <div>
+                      <div className="who">{fullName(l)}</div>
+                      <div className="sub">{l.primary_concern_label ?? intentBucket(l)} · {l.phone ?? "no phone"}</div>
+                    </div>
+                    <StageBadge stage={l.call_status ? l.call_status : l.pipeline_stage} />
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Recent leads table */}
+        <div className="dash-head">
+          <p className="eyebrow">Live feed</p>
+          <h2>Recent leads</h2>
+        </div>
+        <div className="dash-tablewrap">
+          {loading ? (
+            <p className="dash-empty" style={{ padding: "1.25rem" }}>Loading leads…</p>
+          ) : leads.length === 0 ? (
+            <p className="dash-empty" style={{ padding: "1.25rem" }}>No leads yet — complete the funnel to see one appear here live.</p>
+          ) : (
+            <div className="dash-tablescroll">
+              <table className="dash-table">
+                <thead>
+                  <tr>
+                    <th>Created</th><th>Name</th><th>Phone</th><th>Priority</th>
+                    <th>Stage</th><th>Call</th><th>Outcome</th><th>Appointment</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {leads.map((l) => (
+                    <tr key={l.id} onClick={() => setSelectedId(l.id)}>
+                      <td className="dash-num">{fmtDateTime(l.created_at)}</td>
+                      <td>{fullName(l)}</td>
+                      <td className="dash-num">{l.phone ?? "—"}</td>
+                      <td>{l.primary_concern_label ?? l.primary_concern ?? "—"}</td>
+                      <td><StageBadge stage={l.pipeline_stage} /></td>
+                      <td>{l.call_status ?? "—"}</td>
+                      <td>{l.call_outcome ?? "—"}</td>
+                      <td className="dash-num">{l.appointment_at ? fmtDateTime(l.appointment_at) : "—"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* KPI row */}
-      <div className="grid-2" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "1rem", marginTop: "1.5rem" }}>
-        <Kpi label="Total leads" value={kpis.total} />
-        <Kpi label="New today" value={kpis.today} />
-        <Kpi label="In progress" value={kpis.inProgress} />
-        <Kpi label="Booked" value={kpis.booked} />
-        <Kpi label="Converted" value={kpis.converted} />
-      </div>
-
-      {/* Leads table */}
-      <div className="card" style={{ marginTop: "1.5rem", overflowX: "auto" }}>
-        {loading ? (
-          <p style={{ color: "var(--muted)" }}>Loading leads…</p>
-        ) : leads.length === 0 ? (
-          <p style={{ color: "var(--muted)" }}>No leads yet — submit the funnel to see one appear here live.</p>
-        ) : (
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.9rem" }}>
-            <thead>
-              <tr style={{ textAlign: "left", color: "var(--muted)" }}>
-                <Th>Created</Th><Th>Name</Th><Th>Phone</Th><Th>Priority</Th>
-                <Th>Stage</Th><Th>Call</Th><Th>Outcome</Th><Th>Appointment</Th>
-              </tr>
-            </thead>
-            <tbody>
-              {leads.map((l) => (
-                <tr key={l.id} style={{ borderTop: "1px solid var(--border)" }}>
-                  <Td>{new Date(l.created_at).toLocaleString()}</Td>
-                  <Td>{[l.first_name, l.last_name].filter(Boolean).join(" ") || "—"}</Td>
-                  <Td>{l.phone ?? "—"}</Td>
-                  <Td>{l.primary_concern_label ?? l.primary_concern ?? "—"}</Td>
-                  <Td>{l.pipeline_stage ?? "—"}</Td>
-                  <Td>{l.call_status ?? "—"}</Td>
-                  <Td>{l.call_outcome ?? "—"}</Td>
-                  <Td>{l.appointment_at ? new Date(l.appointment_at).toLocaleString() : "—"}</Td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
-    </main>
-  );
-}
-
-function Kpi({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="card" style={{ textAlign: "center" }}>
-      <div style={{ fontFamily: "var(--font-display)", fontSize: "2rem", color: "var(--accent)" }}>{value}</div>
-      <div style={{ fontSize: "0.8rem", color: "var(--muted)" }}>{label}</div>
+      {selected ? <LeadDrawer lead={selected} demo={demo} onClose={() => setSelectedId(null)} /> : null}
     </div>
   );
 }
 
-function Th({ children }: { children: ReactNode }) {
-  return <th style={{ padding: "0.5rem 0.6rem", fontWeight: 600 }}>{children}</th>;
+function Kpi({ n, l, accent = false }: { n: number; l: string; accent?: boolean }) {
+  return (
+    <div className={`dash-kpi${accent ? " is-accent" : ""}`}>
+      <div className="n">{n}</div>
+      <div className="l">{l}</div>
+    </div>
+  );
 }
-function Td({ children }: { children: ReactNode }) {
-  return <td style={{ padding: "0.5rem 0.6rem", color: "var(--text)" }}>{children}</td>;
+
+function StageBadge({ stage }: { stage: string | null }): ReactNode {
+  const s = stage ?? "new_lead";
+  return <span className={`dash-badge stage-${s}`}>{STAGE_LABEL[s] ?? s}</span>;
 }
