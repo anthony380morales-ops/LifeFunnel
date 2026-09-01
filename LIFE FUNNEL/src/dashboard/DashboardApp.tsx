@@ -31,6 +31,11 @@ export function DashboardApp() {
 
   if (demo) return <Dashboard demo />;
 
+  // In a standalone preview build (VITE_PREVIEW) with no Supabase configured,
+  // show the demo dashboard instead of the config notice so reviewers can see
+  // the command center. Never triggers on a real deploy (flag unset).
+  if (import.meta.env.VITE_PREVIEW && !supabaseReady) return <Dashboard demo />;
+
   if (!supabaseReady) {
     return (
       <section className="section container" style={{ maxWidth: 560 }}>

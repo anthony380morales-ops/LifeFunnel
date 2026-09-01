@@ -39,6 +39,8 @@ export default function App() {
               </Suspense>
             }
           />
+          {/* Any unknown URL drops into the questionnaire — the mandatory entry gate. */}
+          <Route path="*" element={<QuizPage />} />
         </Routes>
       </BrowserRouter>
     </FunnelProvider>
