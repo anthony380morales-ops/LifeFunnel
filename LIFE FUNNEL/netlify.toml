@@ -9,6 +9,8 @@
   functions = "netlify/functions"
 
 [build.environment]
+  # Pin the build's Node version so Netlify matches local/CI (Vite 5 + TS 5.6).
+  NODE_VERSION = "20"
   # These are used ONLY inside netlify/functions (server-side) and are never
   # referenced in client code, so they can't leak into dist/. Tell Netlify's
   # secrets scanner not to fail the build on them.
