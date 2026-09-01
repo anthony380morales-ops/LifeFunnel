@@ -43,6 +43,55 @@ function json(statusCode, obj) {
   return { statusCode, headers: CORS, body: JSON.stringify(obj) };
 }
 
+// ── Supabase (best-effort lead persistence; funnel still works if unset) ──────
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+function supaConfigured() {
+  return Boolean(SUPABASE_URL && SUPABASE_KEY);
+}
+function supaHeaders(extra = {}) {
+  return {
+    apikey: SUPABASE_KEY,
+    Authorization: `Bearer ${SUPABASE_KEY}`,
+    "Content-Type": "application/json",
+    ...extra,
+  };
+}
+/** Insert a lead row; returns its id, or null (never throws). */
+async function supaInsertLead(row) {
+  if (!supaConfigured()) return null;
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/leads`, {
+      method: "POST",
+      headers: supaHeaders({ Prefer: "return=representation" }),
+      body: JSON.stringify(row),
+    });
+    if (!res.ok) {
+      console.error("[trigger] supabase insert failed", res.status, await res.text().catch(() => ""));
+      return null;
+    }
+    const rows = await res.json().catch(() => []);
+    return Array.isArray(rows) && rows[0]?.id ? rows[0].id : null;
+  } catch (e) {
+    console.error("[trigger] supabase insert error", e);
+    return null;
+  }
+}
+/** Patch a lead row by id (never throws). */
+async function supaPatchLead(id, patch) {
+  if (!supaConfigured() || !id) return;
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/leads?id=eq.${id}`, {
+      method: "PATCH",
+      headers: supaHeaders(),
+      body: JSON.stringify(patch),
+    });
+  } catch (e) {
+    console.error("[trigger] supabase patch error", e);
+  }
+}
+
 export const handler = async (event) => {
   if (event.httpMethod === "OPTIONS") return { statusCode: 204, headers: CORS, body: "" };
   if (event.httpMethod !== "POST") return json(405, { ok: false, error: "Method not allowed." });
@@ -105,6 +154,23 @@ export const handler = async (event) => {
     timeZone: "America/Los_Angeles",
   }).format(now); // YYYY-MM-DD
 
+  // Save the lead so it shows up in the dashboard (best-effort).
+  const leadId = await supaInsertLead({
+    first_name: (lead.first_name ?? "").toString().trim() || null,
+    last_name: (lead.last_name ?? "").toString().trim() || null,
+    email: (lead.email ?? "").toString().trim() || null,
+    phone: to,
+    primary_concern: primaryConcern || null,
+    primary_concern_label: primary_concern_label || null,
+    quiz_answers: lead.answers ?? {},
+    tags: Array.isArray(lead.tags) ? lead.tags : [],
+    consent_call: Boolean(lead.consent_call),
+    consent_email: Boolean(lead.consent_email),
+    consent_sms: Boolean(lead.consent_sms),
+    pipeline_stage: lead.pipeline_stage ?? "call_intent",
+    call_status: "dialing",
+  });
+
   const payload = {
     from_number: from,
     to_number: to,
@@ -152,7 +218,10 @@ export const handler = async (event) => {
     }
 
     const data = await res.json().catch(() => ({}));
-    return json(200, { ok: true, call_id: data.call_id ?? null });
+    const callId = data.call_id ?? null;
+    // Link the lead row to this call so the post-call webhook can update it.
+    if (callId) await supaPatchLead(leadId, { retell_call_id: callId });
+    return json(200, { ok: true, call_id: callId });
   } catch (err) {
     console.error("[trigger-retell-call] network error", err);
     return json(502, { ok: false, error: "Network error starting your call. Please try again." });
