@@ -112,21 +112,11 @@ export function AboutContent() {
           <Portrait />
           <div>
             <p className="nxg-eyebrow">Meet your advisor</p>
-            <h2>Hi, I'm {advisor.name}.</h2>
+            <h2>{advisor.name}</h2>
             <p>
-              I'm a California-licensed life-insurance agent (Lic. #{advisor.license}) and the person behind
-              {" "}{siteConfig.companyName}. My whole approach is clarity over complexity — I'll show you a
-              couple of clean options that genuinely fit your life, walk through the tradeoffs honestly, and
-              never pressure you into a decision.
-            </p>
-            <p>
-              I work with families and business owners across {advisor.region} on protection, retirement
-              income, Infinite Banking, and tax-aware strategies — coordinating with the professionals
-              already on your team so everything fits together.
-            </p>
-            <p>
-              "Turning uncertainty into certainty" isn't just a line to me — it's how every conversation
-              starts. You should understand exactly what you have and why, before you ever commit a dollar.
+              {advisor.region}-licensed {advisor.title.toLowerCase()} (Lic. #{advisor.license}) with
+              {" "}{siteConfig.companyName}. I help families and business owners protect what matters and plan
+              retirement with clarity — never pressure.
             </p>
             <ul className="nxg-creds">
               <li><span>Name</span> <strong>{advisor.name}</strong></li>
