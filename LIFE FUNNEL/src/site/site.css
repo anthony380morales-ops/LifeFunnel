@@ -1,0 +1,210 @@
+/* NXG Life Group — company page styling (rendered on /results).
+   Builds on the brand tokens in src/styles/global.css. */
+
+.nxg {
+  --gold-grad: linear-gradient(135deg, #f4d576 0%, #d4af37 40%, #a9821f 100%);
+  position: relative;
+  isolation: isolate;
+}
+
+/* Ambient background glow layered behind the whole page */
+.nxg::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(1000px 700px at 82% -8%, rgba(201, 162, 39, 0.16), transparent 60%),
+    radial-gradient(760px 620px at -10% 12%, rgba(59, 130, 246, 0.08), transparent 55%),
+    radial-gradient(900px 900px at 50% 120%, rgba(201, 162, 39, 0.06), transparent 60%);
+  pointer-events: none;
+}
+
+/* ---------- Nav ---------- */
+.nxg-nav {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem clamp(1rem, 4vw, 2.5rem);
+  background: rgba(11, 18, 32, 0.72);
+  backdrop-filter: blur(14px) saturate(1.2);
+  border-bottom: 1px solid var(--border);
+}
+.nxg-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  letter-spacing: 0.01em;
+  color: var(--text);
+  text-decoration: none;
+}
+.nxg-navlinks {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.75rem, 2.5vw, 2rem);
+}
+.nxg-navlinks a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.92rem;
+  font-weight: 500;
+  transition: color 0.15s ease;
+}
+.nxg-navlinks a:hover { color: var(--text); }
+.nxg-navlinks .nxg-login {
+  padding: 0.5rem 1rem;
+  border: 1px solid rgba(201, 162, 39, 0.5);
+  border-radius: 999px;
+  color: var(--accent);
+}
+.nxg-navlinks .nxg-login:hover { background: var(--accent-dim); color: var(--accent-hover); }
+@media (max-width: 640px) {
+  .nxg-navlinks .nxg-hide-sm { display: none; }
+}
+
+/* ---------- Shared ---------- */
+.nxg-wrap { width: min(1140px, 100% - 2.5rem); margin-inline: auto; }
+.nxg-eyebrow {
+  font-size: 0.74rem; font-weight: 700; letter-spacing: 0.22em;
+  text-transform: uppercase; color: var(--accent); margin: 0 0 1rem;
+}
+.nxg-gold {
+  background: var(--gold-grad);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.nxg-fade { opacity: 0; transform: translateY(16px); animation: nxgUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+.nxg-d1 { animation-delay: 0.05s; } .nxg-d2 { animation-delay: 0.15s; }
+.nxg-d3 { animation-delay: 0.28s; } .nxg-d4 { animation-delay: 0.42s; }
+@keyframes nxgUp { to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .nxg-fade { animation: none; opacity: 1; transform: none; } }
+
+/* ---------- Hero ---------- */
+.nxg-hero {
+  position: relative;
+  min-height: min(92vh, 820px);
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  align-items: center;
+  gap: 2rem;
+  padding-block: clamp(2.5rem, 7vw, 5.5rem);
+}
+@media (max-width: 900px) { .nxg-hero { grid-template-columns: 1fr; min-height: auto; } }
+.nxg-hero h1 {
+  font-size: clamp(2.7rem, 8vw, 5rem);
+  line-height: 1.02;
+  margin: 0 0 1.25rem;
+}
+.nxg-hero .nxg-sub {
+  font-size: clamp(1.05rem, 2.2vw, 1.28rem);
+  color: #cbd5e1;
+  max-width: 46ch;
+  margin: 0 0 1.5rem;
+}
+.nxg-hero .nxg-reassure {
+  display: inline-flex; align-items: center; gap: 0.55rem;
+  font-size: 0.9rem; color: var(--muted);
+  padding: 0.5rem 0.9rem; border: 1px solid var(--border); border-radius: 999px;
+  background: rgba(15, 23, 42, 0.5);
+}
+.nxg-pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--accent);
+  box-shadow: 0 0 0 0 rgba(201,162,39,0.6); animation: nxgPulse 2s infinite; }
+@keyframes nxgPulse { 70% { box-shadow: 0 0 0 10px rgba(201,162,39,0); } 100% { box-shadow: 0 0 0 0 rgba(201,162,39,0); } }
+
+.nxg-emblem { display: grid; place-items: center; }
+.nxg-emblem svg { width: min(360px, 72vw); height: auto; filter: drop-shadow(0 24px 60px rgba(201, 162, 39, 0.35)); }
+@media (max-width: 900px) { .nxg-emblem { order: -1; } .nxg-emblem svg { width: min(190px, 48vw); } }
+
+.nxg-chips { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 1.75rem; }
+.nxg-chip {
+  font-size: 0.82rem; color: #cbd5e1;
+  padding: 0.4rem 0.85rem; border-radius: 999px;
+  border: 1px solid var(--border); background: rgba(15, 23, 42, 0.45);
+}
+
+/* ---------- Section headings ---------- */
+.nxg-section { padding-block: clamp(3rem, 7vw, 6rem); }
+.nxg-section h2 { font-size: clamp(1.9rem, 4.5vw, 3rem); margin: 0 0 0.75rem; }
+.nxg-section .nxg-kicker { color: var(--muted); max-width: 60ch; margin: 0 auto; }
+.nxg-center { text-align: center; }
+
+/* ---------- Services ---------- */
+.nxg-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.1rem; margin-top: 2.5rem; }
+.nxg-card {
+  position: relative;
+  padding: 1.6rem 1.5rem;
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, rgba(22, 34, 54, 0.9), rgba(17, 27, 46, 0.9));
+  border: 1px solid var(--border);
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  overflow: hidden;
+}
+.nxg-card::after {
+  content: ""; position: absolute; inset: 0 0 auto 0; height: 2px;
+  background: var(--gold-grad); opacity: 0; transition: opacity 0.2s ease;
+}
+.nxg-card:hover { transform: translateY(-6px); border-color: rgba(201, 162, 39, 0.4); box-shadow: 0 24px 60px rgba(0,0,0,0.45); }
+.nxg-card:hover::after { opacity: 1; }
+.nxg-card .nxg-ico {
+  width: 46px; height: 46px; border-radius: 12px; display: grid; place-items: center;
+  background: var(--accent-dim); color: var(--accent); margin-bottom: 1rem;
+}
+.nxg-card h3 { font-size: 1.3rem; color: var(--text); margin: 0 0 0.4rem; }
+.nxg-card p { margin: 0; font-size: 0.95rem; }
+
+/* ---------- About ---------- */
+.nxg-about { display: grid; grid-template-columns: 0.8fr 1.2fr; gap: clamp(1.5rem, 4vw, 3rem); align-items: center; }
+@media (max-width: 820px) { .nxg-about { grid-template-columns: 1fr; } }
+.nxg-portrait {
+  position: relative; border-radius: 20px; aspect-ratio: 4 / 5;
+  background:
+    linear-gradient(180deg, rgba(11,18,32,0) 40%, rgba(11,18,32,0.85) 100%),
+    var(--img, none),
+    linear-gradient(160deg, #1b2942, #0d1524);
+  background-size: cover; background-position: center top;
+  border: 1px solid rgba(201, 162, 39, 0.35);
+  box-shadow: 0 30px 80px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(255,255,255,0.03);
+  overflow: hidden;
+}
+.nxg-portrait .nxg-portrait-cap {
+  position: absolute; left: 1.1rem; bottom: 1rem; right: 1.1rem;
+}
+.nxg-portrait .nxg-portrait-cap strong { color: var(--text); font-size: 1.05rem; display: block; }
+.nxg-portrait .nxg-portrait-cap span { color: var(--accent); font-size: 0.82rem; }
+.nxg-portrait .nxg-portrait-hint {
+  position: absolute; inset: 0; display: grid; place-items: center; padding: 1.5rem;
+  color: var(--muted); font-size: 0.85rem; text-align: center;
+}
+
+.nxg-creds { list-style: none; margin: 1.5rem 0 0; padding: 0; display: grid; gap: 0.6rem; }
+.nxg-creds li {
+  display: flex; justify-content: space-between; gap: 1rem;
+  padding: 0.7rem 1rem; border: 1px solid var(--border); border-radius: 10px;
+  background: rgba(15, 23, 42, 0.45);
+}
+.nxg-creds li span { color: var(--muted); font-size: 0.85rem; }
+.nxg-creds li strong { color: var(--text); }
+
+/* ---------- Approach stats ---------- */
+.nxg-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.1rem; margin-top: 2.5rem; }
+.nxg-stat { text-align: center; padding: 1.5rem 1rem; border: 1px solid var(--border); border-radius: var(--radius); background: rgba(17,27,46,0.6); }
+.nxg-stat b { font-family: var(--font-display); font-size: 2.4rem; display: block; }
+.nxg-stat span { color: var(--muted); font-size: 0.9rem; }
+
+/* ---------- Testimonials ---------- */
+.nxg-quotes { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.1rem; margin-top: 2.5rem; }
+.nxg-quote { padding: 1.75rem; border-radius: var(--radius); border: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(22,34,54,0.7), rgba(17,27,46,0.7)); }
+.nxg-quote p { color: #e2e8f0; font-size: 1.05rem; font-style: italic; margin: 0 0 1rem; }
+.nxg-quote footer { color: var(--accent); font-size: 0.85rem; }
+
+/* ---------- Footer ---------- */
+.nxg-footer { border-top: 1px solid var(--border); padding-block: clamp(2.5rem, 5vw, 4rem); margin-top: 2rem; }
+.nxg-footer-top { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1.5rem; align-items: flex-start; }
+.nxg-footer small { color: var(--muted); }
+.nxg-disclaimer { margin-top: 1.5rem; font-size: 0.78rem; color: var(--muted); max-width: 90ch; }
