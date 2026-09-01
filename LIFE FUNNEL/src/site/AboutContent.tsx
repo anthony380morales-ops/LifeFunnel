@@ -9,9 +9,11 @@
 import { type CSSProperties, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { siteConfig } from "@/site/siteConfig";
+import { useScrollReveal } from "@/site/useScrollReveal";
 import "@/site/site.css";
 
 export function AboutContent() {
+  useScrollReveal();
   return (
     <div className="nxg">
       {/* ---------- Nav ---------- */}
@@ -58,7 +60,7 @@ export function AboutContent() {
 
       {/* ---------- Services ---------- */}
       <section id="services" className="nxg-section nxg-wrap">
-        <div className="nxg-center">
+        <div className="nxg-center nxg-reveal">
           <p className="nxg-eyebrow">What we help you navigate</p>
           <h2>Clear strategies for every stage</h2>
           <p className="nxg-kicker">
@@ -66,19 +68,19 @@ export function AboutContent() {
           </p>
         </div>
         <div className="nxg-cards">
-          <Card icon={<IcoShield />} title="Protection">
+          <Card index={0} icon={<IcoShield />} title="Protection">
             Term, whole, IUL, and final-expense coverage designed around your family's real needs — so if
             life happens, they keep their choices.
           </Card>
-          <Card icon={<IcoGrowth />} title="Retirement Income">
+          <Card index={1} icon={<IcoGrowth />} title="Retirement Income">
             Annuities, rollovers, and income strategies built for certainty — whether the market soars,
             stalls, or slides.
           </Card>
-          <Card icon={<IcoBank />} title="Infinite Banking & Legacy">
+          <Card index={2} icon={<IcoBank />} title="Infinite Banking & Legacy">
             Become your own bank: controlled liquidity, real tax advantages, and a legacy that doesn't ride
             Wall Street's roller coaster.
           </Card>
-          <Card icon={<IcoTax />} title="Tax-Aware Planning">
+          <Card index={3} icon={<IcoTax />} title="Tax-Aware Planning">
             Keep more of what you earn with strategies coordinated around your bigger financial picture
             (general guidance — not individual tax advice).
           </Card>
@@ -87,7 +89,7 @@ export function AboutContent() {
 
       {/* ---------- About Anthony ---------- */}
       <section id="about" className="nxg-section nxg-wrap">
-        <div className="nxg-about">
+        <div className="nxg-about nxg-reveal">
           <div
             className="nxg-portrait"
             style={{ ["--img"]: "url('/anthony.jpg')" } as CSSProperties}
@@ -121,19 +123,19 @@ export function AboutContent() {
 
       {/* ---------- Approach ---------- */}
       <section id="approach" className="nxg-section nxg-wrap">
-        <div className="nxg-center">
+        <div className="nxg-center nxg-reveal">
           <p className="nxg-eyebrow">Why families choose NXG</p>
           <h2>A different kind of conversation</h2>
         </div>
         <div className="nxg-cards" style={{ marginTop: "2.5rem" }}>
-          <Card icon={<IcoSpark />} title="Clarity over complexity">
+          <Card index={0} icon={<IcoSpark />} title="Clarity over complexity">
             You'll leave every call understanding your options in plain language — no hypothetical returns,
             no fine-print surprises.
           </Card>
-          <Card icon={<IcoHeart />} title="Education, never pressure">
+          <Card index={1} icon={<IcoHeart />} title="Education, never pressure">
             We explain mechanics and fit. If we're not the right match for you, we'll say so.
           </Card>
-          <Card icon={<IcoBadge />} title="Licensed & compliant">
+          <Card index={2} icon={<IcoBadge />} title="Licensed & compliant">
             California-licensed guidance (Lic. #4490102), coordinated with the professionals already on your team.
           </Card>
         </div>
@@ -141,20 +143,20 @@ export function AboutContent() {
 
       {/* ---------- Testimonials ---------- */}
       <section className="nxg-section nxg-wrap">
-        <div className="nxg-center">
+        <div className="nxg-center nxg-reveal">
           <p className="nxg-eyebrow">In their words</p>
           <h2>What clients say</h2>
         </div>
         <div className="nxg-quotes">
-          <figure className="nxg-quote">
+          <figure className="nxg-quote nxg-reveal" style={{ ["--i"]: 0 } as CSSProperties}>
             <p>"Anthony mapped out the tradeoffs without promising the market. For the first time, I actually understood what I was buying."</p>
             <footer>— Verified client testimonial (replace)</footer>
           </figure>
-          <figure className="nxg-quote">
+          <figure className="nxg-quote nxg-reveal" style={{ ["--i"]: 1 } as CSSProperties}>
             <p>"No pressure, no jargon. Ten minutes on the phone and I finally had a plan that fit my family."</p>
             <footer>— Verified client testimonial (replace)</footer>
           </figure>
-          <figure className="nxg-quote">
+          <figure className="nxg-quote nxg-reveal" style={{ ["--i"]: 2 } as CSSProperties}>
             <p>"He treated my business like his own — the liquidity strategy alone was worth the call."</p>
             <footer>— Verified client testimonial (replace)</footer>
           </figure>
@@ -190,9 +192,9 @@ export function AboutContent() {
 
 /* ---------- small building blocks ---------- */
 
-function Card({ icon, title, children }: { icon: ReactNode; title: string; children: ReactNode }) {
+function Card({ icon, title, index = 0, children }: { icon: ReactNode; title: string; index?: number; children: ReactNode }) {
   return (
-    <article className="nxg-card">
+    <article className="nxg-card nxg-reveal" style={{ ["--i"]: index } as CSSProperties}>
       <div className="nxg-ico">{icon}</div>
       <h3>{title}</h3>
       <p>{children}</p>
