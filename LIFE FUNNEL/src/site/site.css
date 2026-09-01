@@ -7,17 +7,42 @@
   isolation: isolate;
 }
 
-/* Ambient background glow layered behind the whole page */
+/* Ambient background glow layered behind the whole page. Two drifting aurora
+   layers give the dark ground a slow, living shimmer without distracting. */
 .nxg::before {
   content: "";
   position: fixed;
-  inset: 0;
+  inset: -20%;
   z-index: -1;
   background:
     radial-gradient(1000px 700px at 82% -8%, rgba(201, 162, 39, 0.16), transparent 60%),
     radial-gradient(760px 620px at -10% 12%, rgba(59, 130, 246, 0.08), transparent 55%),
     radial-gradient(900px 900px at 50% 120%, rgba(201, 162, 39, 0.06), transparent 60%);
   pointer-events: none;
+  animation: nxgAurora 26s ease-in-out infinite alternate;
+}
+.nxg::after {
+  content: "";
+  position: fixed;
+  inset: -20%;
+  z-index: -1;
+  background:
+    radial-gradient(620px 520px at 20% 0%, rgba(201, 162, 39, 0.10), transparent 60%),
+    radial-gradient(680px 560px at 100% 40%, rgba(87, 130, 210, 0.07), transparent 55%);
+  pointer-events: none;
+  opacity: 0.9;
+  animation: nxgAurora2 34s ease-in-out infinite alternate;
+}
+@keyframes nxgAurora {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  100% { transform: translate3d(-3%, 2%, 0) scale(1.08); }
+}
+@keyframes nxgAurora2 {
+  0% { transform: translate3d(0, 0, 0) scale(1.05); }
+  100% { transform: translate3d(4%, -3%, 0) scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nxg::before, .nxg::after { animation: none; }
 }
 
 /* ---------- Nav ---------- */
@@ -139,8 +164,49 @@
 @keyframes nxgPulse { 70% { box-shadow: 0 0 0 10px rgba(201,162,39,0); } 100% { box-shadow: 0 0 0 0 rgba(201,162,39,0); } }
 
 .nxg-emblem { display: grid; place-items: center; }
-.nxg-emblem svg { width: min(360px, 72vw); height: auto; filter: drop-shadow(0 24px 60px rgba(201, 162, 39, 0.35)); }
-@media (max-width: 900px) { .nxg-emblem { order: -1; } .nxg-emblem svg { width: min(190px, 48vw); } }
+@media (max-width: 900px) { .nxg-emblem { order: -1; } }
+
+/* Hero emblem: the real logo, crisp, centered inside slow-rotating gold rings
+   and a soft halo — a premium brand moment that reads at any size. */
+.nxg-emblem-stage {
+  position: relative;
+  width: min(420px, 78vw);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+}
+@media (max-width: 900px) { .nxg-emblem-stage { width: min(260px, 62vw); } }
+.nxg-emblem-stage .nxg-logo-hero,
+.nxg-emblem-stage svg {
+  position: relative; z-index: 2;
+  width: clamp(96px, 20vw, 132px); height: auto;
+  filter: drop-shadow(0 18px 44px rgba(201, 162, 39, 0.45));
+}
+.nxg-emblem-glow {
+  position: absolute; inset: 22%; border-radius: 50%; z-index: 1;
+  background: radial-gradient(circle, rgba(201, 162, 39, 0.32), transparent 68%);
+  filter: blur(14px);
+  animation: nxgBreathe 6s ease-in-out infinite;
+}
+.nxg-ring {
+  position: absolute; border-radius: 50%; z-index: 0;
+  border: 1px solid rgba(201, 162, 39, 0.22);
+}
+.nxg-ring-1 { inset: 0; border-style: dashed; border-color: rgba(201,162,39,0.28); animation: nxgSpin 40s linear infinite; }
+.nxg-ring-2 { inset: 12%; border-color: rgba(201,162,39,0.18); animation: nxgSpin 30s linear infinite reverse; }
+.nxg-ring-3 {
+  inset: 26%;
+  border: 1px solid transparent;
+  background: conic-gradient(from 0deg, rgba(201,162,39,0) 0deg, rgba(201,162,39,0.5) 90deg, rgba(201,162,39,0) 200deg) border-box;
+  -webkit-mask: linear-gradient(#000 0 0) padding-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  animation: nxgSpin 18s linear infinite;
+}
+@keyframes nxgSpin { to { transform: rotate(360deg); } }
+@keyframes nxgBreathe { 0%, 100% { opacity: 0.75; transform: scale(1); } 50% { opacity: 1; transform: scale(1.06); } }
+@media (prefers-reduced-motion: reduce) {
+  .nxg-ring, .nxg-emblem-glow { animation: none; }
+}
 
 .nxg-chips { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 1.75rem; }
 .nxg-chip {

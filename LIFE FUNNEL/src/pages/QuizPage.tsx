@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useFunnel } from "@/context/FunnelContext";
 import { getVisibleQuestions, isQuizComplete, QUIZ_QUESTIONS } from "@/lib/quizLogic";
 import { trackEvent } from "@/lib/analytics";
+import { siteConfig } from "@/site/siteConfig";
 import {
   clearPartialQuiz,
   loadPartialQuiz,
@@ -11,6 +12,7 @@ import {
   trackQuizAbandoned,
 } from "@/lib/automationHooks";
 import type { QuizAnswers } from "@/types/funnel";
+import "@/site/quiz.css";
 
 export function QuizPage() {
   const navigate = useNavigate();
@@ -121,96 +123,104 @@ export function QuizPage() {
 
   if (!current) {
     return (
-      <section className="section container">
-        <p>Nothing to show.</p>
-        <Link to="/">Home</Link>
-      </section>
+      <div className="nxq">
+        <div className="nxq-shell nxq-card">
+          <p>Nothing to show.</p>
+          <Link to="/">Home</Link>
+        </div>
+      </div>
     );
   }
 
   const progress = Math.round(((stepIndex + 1) / visibleQuestions.length) * 100);
 
   return (
-    <section className="section container" style={{ maxWidth: 640 }}>
-      <p className="eyebrow">
-        Financial clarity check-in · ~2 minutes
-      </p>
-      <h1 style={{ marginBottom: "0.5rem" }}>{current.title}</h1>
-      {current.subtitle ? <p className="lead">{current.subtitle}</p> : null}
+    <div className="nxq">
+      <div className="nxq-shell">
+        <header className="nxq-top">
+          <span className="nxq-brand">
+            {siteConfig.logoSrc ? (
+              <img className="nxq-logo" src={siteConfig.logoSrc} alt={`${siteConfig.companyName} logo`} />
+            ) : null}
+            {siteConfig.companyName}
+          </span>
+          <span className="nxq-step">Question {stepIndex + 1} of {visibleQuestions.length}</span>
+        </header>
 
-      <div
-        role="progressbar"
-        aria-valuenow={progress}
-        aria-valuemin={0}
-        aria-valuemax={100}
-        style={{
-          height: 8,
-          borderRadius: 999,
-          background: "var(--surface)",
-          overflow: "hidden",
-          marginBottom: "1.5rem",
-        }}
-      >
         <div
-          style={{
-            width: `${progress}%`,
-            height: "100%",
-            background: "var(--accent)",
-            transition: "width 0.3s ease",
-          }}
-        />
-      </div>
+          className="nxq-progress"
+          role="progressbar"
+          aria-valuenow={progress}
+          aria-valuemin={0}
+          aria-valuemax={100}
+        >
+          <div className="nxq-progress-fill" style={{ width: `${progress}%` }} />
+        </div>
 
-      {current.type === "single" && current.options ? (
-        <div className="stack" style={{ gap: "0.65rem" }}>
-          {current.options.map((opt) => {
-            const selected =
-              (answers[current.id as keyof QuizAnswers] as string | undefined) === opt.value;
-            return (
+        {/* keyed by question id → the card + options re-animate on each step */}
+        <div className="nxq-card" key={current.id}>
+          <p className="nxq-eyebrow">Financial clarity check-in · ~2 minutes</p>
+          <h1 className="nxq-title">{current.title}</h1>
+          {current.subtitle ? <p className="nxq-sub">{current.subtitle}</p> : null}
+
+          {current.type === "single" && current.options ? (
+            <div className="nxq-opts">
+              {current.options.map((opt, i) => {
+                const selected =
+                  (answers[current.id as keyof QuizAnswers] as string | undefined) === opt.value;
+                return (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    className={`nxq-opt${selected ? " is-selected" : ""}`}
+                    style={{ ["--i"]: i } as CSSProperties}
+                    onClick={() => stableAdvance(current.id, opt.value)}
+                  >
+                    <span className="nxq-opt__dot" aria-hidden />
+                    <span>{opt.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          ) : null}
+
+          {current.type === "text" ? (
+            <>
+              <textarea
+                className="nxq-textarea"
+                value={(answers.goals_open as string | undefined) ?? ""}
+                onChange={(e) => setAnswer("goals_open", e.target.value)}
+                placeholder="Optional — e.g., Roth conversions, business exit, caring for parents…"
+              />
+              <div className="nxq-actions">
+                <button type="button" className="nxq-btn nxq-btn--primary" onClick={handleGoalsNext}>
+                  Continue →
+                </button>
+                <button type="button" className="nxq-btn nxq-btn--ghost" onClick={handleGoalsSkip}>
+                  Skip
+                </button>
+              </div>
+            </>
+          ) : null}
+
+          {current.type === "single" ? (
+            <div className="nxq-back">
               <button
-                key={opt.id}
                 type="button"
-                className={`quiz-option${selected ? " is-selected" : ""}`}
-                onClick={() => stableAdvance(current.id, opt.value)}
+                className="nxq-btn nxq-btn--ghost"
+                onClick={handleBack}
+                disabled={stepIndex === 0}
               >
-                <span className="quiz-option__radio" aria-hidden />
-                <span>{opt.label}</span>
+                ← Back
               </button>
-            );
-          })}
+            </div>
+          ) : null}
         </div>
-      ) : null}
 
-      {current.type === "text" ? (
-        <div className="stack">
-          <textarea
-            className="input"
-            value={(answers.goals_open as string | undefined) ?? ""}
-            onChange={(e) => setAnswer("goals_open", e.target.value)}
-            placeholder="Optional — e.g., Roth conversions, business exit, caring for parents…"
-          />
-          <div className="stack stack--row-md">
-            <button type="button" className="btn btn--primary" onClick={handleGoalsNext}>
-              Continue →
-            </button>
-            <button type="button" className="btn btn--secondary" onClick={handleGoalsSkip}>
-              Skip
-            </button>
-          </div>
-        </div>
-      ) : null}
-
-      {current.type === "single" ? (
-        <div style={{ marginTop: "1.25rem" }}>
-          <button type="button" className="btn btn--secondary" onClick={handleBack} disabled={stepIndex === 0}>
-            Back
-          </button>
-        </div>
-      ) : null}
-
-      <p className="footer-note" style={{ marginTop: "2rem" }}>
-        For educational purposes only — not tax or investment advice. Products subject to underwriting / issuer terms.
-      </p>
-    </section>
+        <p className="nxq-legal">
+          For educational purposes only — not tax or investment advice. Products subject to underwriting / issuer terms.
+        </p>
+      </div>
+    </div>
   );
 }

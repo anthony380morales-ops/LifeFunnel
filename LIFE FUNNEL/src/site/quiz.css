@@ -1,0 +1,148 @@
+/* NXG Life Group — branded quiz + contact shell (the mandatory entry gate).
+   Immersive, premium, animated. Logic lives in QuizPage/DetailsPage; this only
+   re-skins. Built on the brand tokens in styles/global.css. */
+
+.nxq {
+  position: relative;
+  isolation: isolate;
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: clamp(1.25rem, 4vw, 2.5rem);
+  overflow: hidden;
+}
+/* Living aurora ground, matching the company page */
+.nxq::before {
+  content: "";
+  position: fixed; inset: -20%; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(900px 640px at 80% -6%, rgba(201, 162, 39, 0.18), transparent 60%),
+    radial-gradient(760px 620px at -8% 10%, rgba(59, 130, 246, 0.09), transparent 55%),
+    radial-gradient(900px 900px at 50% 118%, rgba(201, 162, 39, 0.07), transparent 60%);
+  animation: nxqAurora 28s ease-in-out infinite alternate;
+}
+@keyframes nxqAurora { 0% { transform: translate3d(0,0,0) scale(1); } 100% { transform: translate3d(-3%,2%,0) scale(1.08); } }
+
+.nxq-shell { width: min(660px, 100%); }
+
+.nxq-top {
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+.nxq-brand {
+  display: inline-flex; align-items: center; gap: 0.6rem;
+  font-family: var(--font-display); font-size: 1.15rem; color: var(--text);
+}
+.nxq-logo { height: 30px; width: auto; display: block; }
+.nxq-step { font-size: 0.8rem; color: var(--muted); letter-spacing: 0.04em; }
+
+.nxq-progress {
+  height: 8px; border-radius: 999px; overflow: hidden;
+  background: rgba(15, 23, 42, 0.7); border: 1px solid var(--border);
+  margin-bottom: 1.5rem;
+}
+.nxq-progress-fill {
+  height: 100%; border-radius: 999px;
+  background: linear-gradient(90deg, #a9821f, #f4d576 60%, #d4af37);
+  box-shadow: 0 0 16px rgba(201, 162, 39, 0.6);
+  transition: width 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.nxq-card {
+  position: relative;
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+  border-radius: 20px;
+  background: linear-gradient(180deg, rgba(22, 34, 54, 0.78), rgba(15, 23, 42, 0.82));
+  border: 1px solid var(--border);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(12px);
+  animation: nxqCardIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes nxqCardIn { from { opacity: 0; transform: translateY(18px) scale(0.99); } to { opacity: 1; transform: none; } }
+
+.nxq-eyebrow {
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--accent); margin: 0 0 0.9rem;
+}
+.nxq-title { font-size: clamp(1.7rem, 4.5vw, 2.5rem); line-height: 1.08; margin: 0 0 0.5rem; }
+.nxq-sub { color: var(--muted); margin: 0 0 1.5rem; font-size: 1.02rem; }
+
+.nxq-opts { display: grid; gap: 0.7rem; margin-top: 1.4rem; }
+.nxq-opt {
+  --i: 0;
+  display: flex; align-items: center; gap: 0.9rem; width: 100%; text-align: left;
+  min-height: 60px; padding: 0.9rem 1.1rem;
+  border-radius: 14px; cursor: pointer;
+  border: 1px solid var(--border);
+  background: rgba(15, 23, 42, 0.5);
+  color: var(--text); font-size: 1.05rem; font-family: inherit;
+  transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease, box-shadow 0.16s ease;
+  animation: nxqOptIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(var(--i) * 60ms + 120ms);
+}
+@keyframes nxqOptIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.nxq-opt:hover { transform: translateY(-2px); border-color: rgba(201, 162, 39, 0.5); background: rgba(23, 34, 54, 0.75); }
+.nxq-opt:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.nxq-opt.is-selected {
+  border-color: rgba(201, 162, 39, 0.85);
+  background: rgba(201, 162, 39, 0.12);
+  box-shadow: 0 0 0 1px rgba(201, 162, 39, 0.5), 0 12px 30px rgba(201, 162, 39, 0.18);
+}
+.nxq-opt__dot {
+  flex: 0 0 auto; width: 22px; height: 22px; border-radius: 50%;
+  border: 2px solid rgba(148, 163, 184, 0.5); position: relative; transition: border-color 0.16s ease;
+}
+.nxq-opt.is-selected .nxq-opt__dot { border-color: var(--accent); }
+.nxq-opt.is-selected .nxq-opt__dot::after {
+  content: ""; position: absolute; inset: 3px; border-radius: 50%;
+  background: var(--gold-grad, linear-gradient(135deg, #f4d576, #d4af37));
+}
+
+.nxq-textarea {
+  width: 100%; min-height: 130px; resize: vertical; margin-top: 1.2rem;
+  padding: 0.9rem 1.1rem; border-radius: 14px;
+  border: 1px solid var(--border); background: rgba(15, 23, 42, 0.6);
+  color: var(--text); font-family: inherit; font-size: 1rem; line-height: 1.5;
+}
+.nxq-textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-color: rgba(201,162,39,0.6); }
+
+.nxq-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.4rem; }
+.nxq-btn {
+  min-height: 52px; padding: 0 1.5rem; border-radius: 999px; cursor: pointer;
+  font-family: inherit; font-size: 1rem; font-weight: 600;
+  border: 1px solid transparent; transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+}
+.nxq-btn--primary {
+  background: linear-gradient(135deg, #f4d576, #d4af37 55%, #a9821f);
+  color: #1a1405; box-shadow: 0 12px 30px rgba(201, 162, 39, 0.3);
+}
+.nxq-btn--primary:hover { transform: translateY(-2px); box-shadow: 0 16px 40px rgba(201, 162, 39, 0.42); }
+.nxq-btn--ghost { background: rgba(15, 23, 42, 0.5); border-color: var(--border); color: var(--text); }
+.nxq-btn--ghost:hover { border-color: rgba(201, 162, 39, 0.5); }
+.nxq-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.nxq-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.nxq-back { margin-top: 1.25rem; }
+.nxq-legal { margin: 1.5rem 0 0; font-size: 0.78rem; color: var(--muted); text-align: center; }
+
+/* ---------- Contact form (DetailsPage) ---------- */
+.nxq-field { display: grid; gap: 0.4rem; }
+.nxq-field > span { font-size: 0.88rem; color: var(--muted); }
+.nxq-field .nxq-req { color: var(--accent); }
+.nxq-input {
+  min-height: var(--tap-min); border-radius: 12px; padding: 0 1rem;
+  border: 1px solid var(--border); background: rgba(15, 23, 42, 0.6);
+  color: var(--text); font-family: inherit; font-size: 1rem; width: 100%;
+}
+.nxq-input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-color: rgba(201,162,39,0.6); }
+.nxq-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.9rem; }
+@media (max-width: 520px) { .nxq-grid2 { grid-template-columns: 1fr; } }
+.nxq-consent { display: flex; align-items: flex-start; gap: 0.7rem; }
+.nxq-consent input { width: 22px; height: 22px; margin-top: 3px; flex: 0 0 auto; accent-color: var(--accent); }
+.nxq-consent span { font-size: 0.86rem; color: var(--muted); line-height: 1.45; }
+.nxq-error { color: var(--danger); margin: 0; font-size: 0.92rem; }
+.nxq-form { display: grid; gap: 1.1rem; margin-top: 0.4rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  .nxq::before, .nxq-card, .nxq-opt { animation: none; }
+}

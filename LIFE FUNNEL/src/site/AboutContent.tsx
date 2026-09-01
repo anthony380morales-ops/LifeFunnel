@@ -58,7 +58,13 @@ export function AboutContent() {
           </div>
         </div>
         <div className="nxg-emblem nxg-fade nxg-d2" aria-hidden>
-          <Brandmark size={340} hero />
+          <div className="nxg-emblem-stage">
+            <span className="nxg-ring nxg-ring-1" />
+            <span className="nxg-ring nxg-ring-2" />
+            <span className="nxg-ring nxg-ring-3" />
+            <span className="nxg-emblem-glow" />
+            <Brandmark size={132} hero />
+          </div>
         </div>
       </header>
 

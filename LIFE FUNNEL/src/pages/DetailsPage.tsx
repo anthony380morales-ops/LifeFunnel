@@ -4,16 +4,8 @@ import { useFunnel } from "@/context/FunnelContext";
 import { isQuizComplete } from "@/lib/quizLogic";
 import { toE164 } from "@/lib/phone";
 import { trackEvent } from "@/lib/analytics";
-
-const fieldStyle = {
-  minHeight: "var(--tap-min)",
-  borderRadius: "var(--radius-sm)",
-  border: "1px solid var(--border)",
-  background: "rgba(15,23,42,0.65)",
-  color: "var(--text)",
-  padding: "0 1rem",
-  fontSize: "1rem",
-} as const;
+import { siteConfig } from "@/site/siteConfig";
+import "@/site/quiz.css";
 
 /**
  * Contact capture — the final part of the questionnaire. Collects name, email,
@@ -68,70 +60,81 @@ export function DetailsPage() {
   }
 
   return (
-    <section className="section container" style={{ maxWidth: 560 }}>
-      <p className="eyebrow">Last step</p>
-      <h1>Where should Anthony's team reach you?</h1>
-      <p className="lead">
-        Add your details and we'll call you in about a minute to talk through what you're looking for — no waiting on
-        hold.
-      </p>
+    <div className="nxq">
+      <div className="nxq-shell">
+        <header className="nxq-top">
+          <span className="nxq-brand">
+            {siteConfig.logoSrc ? (
+              <img className="nxq-logo" src={siteConfig.logoSrc} alt={`${siteConfig.companyName} logo`} />
+            ) : null}
+            {siteConfig.companyName}
+          </span>
+          <span className="nxq-step">Last step</span>
+        </header>
 
-      <form className="card stack" onSubmit={onSubmit} noValidate style={{ marginTop: "1.5rem" }}>
-        <div className="grid-2">
-          <label className="stack" style={{ gap: "0.35rem" }}>
-            <span style={{ fontSize: "0.9rem", color: "var(--muted)" }}>First name</span>
-            <input className="input" style={fieldStyle} value={first_name} onChange={(e) => setFirstName(e.target.value)} autoComplete="given-name" required />
-          </label>
-          <label className="stack" style={{ gap: "0.35rem" }}>
-            <span style={{ fontSize: "0.9rem", color: "var(--muted)" }}>Last name</span>
-            <input className="input" style={fieldStyle} value={last_name} onChange={(e) => setLastName(e.target.value)} autoComplete="family-name" />
-          </label>
+        <div className="nxq-progress" role="progressbar" aria-valuenow={100} aria-valuemin={0} aria-valuemax={100}>
+          <div className="nxq-progress-fill" style={{ width: "100%" }} />
         </div>
 
-        <label className="stack" style={{ gap: "0.35rem" }}>
-          <span style={{ fontSize: "0.9rem", color: "var(--muted)" }}>
-            Mobile phone <span style={{ color: "var(--accent)" }}>(required — the number we call)</span>
-          </span>
-          <input className="input" style={fieldStyle} inputMode="tel" autoComplete="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="(555) 555-0100" required />
-        </label>
-
-        <label className="stack" style={{ gap: "0.35rem" }}>
-          <span style={{ fontSize: "0.9rem", color: "var(--muted)" }}>
-            Email <span style={{ color: "var(--accent)" }}>(required — for your appointment confirmation)</span>
-          </span>
-          <input className="input" style={fieldStyle} type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" required />
-        </label>
-
-        <label className="stack" style={{ gap: "0.35rem", alignItems: "flex-start", flexDirection: "row" }}>
-          <input type="checkbox" checked={consent_call} onChange={(e) => setConsentCall(e.target.checked)} style={{ width: 22, height: 22, marginTop: 4 }} />
-          <span style={{ fontSize: "0.88rem", color: "var(--muted)" }}>
-            I authorize NXG Life Group to contact me at the number provided for a brief consultation call, including
-            through an automated or AI-assisted dialing system. Consent isn't a condition of purchase. Calling rates may
-            apply. I can ask to stop at any time.
-          </span>
-        </label>
-
-        <label className="stack" style={{ gap: "0.35rem", alignItems: "flex-start", flexDirection: "row" }}>
-          <input type="checkbox" checked={consent_email} onChange={(e) => setConsentEmail(e.target.checked)} style={{ width: 22, height: 22, marginTop: 4 }} />
-          <span style={{ fontSize: "0.88rem", color: "var(--muted)" }}>
-            Email me my recap and helpful follow-ups. I can unsubscribe anytime. (Your appointment confirmation is sent
-            either way.)
-          </span>
-        </label>
-
-        {errorMsg ? (
-          <p style={{ color: "var(--danger)", margin: 0 }} role="alert">
-            {errorMsg}
+        <div className="nxq-card">
+          <p className="nxq-eyebrow">Almost there</p>
+          <h1 className="nxq-title">Where should Anthony's team reach you?</h1>
+          <p className="nxq-sub">
+            Add your details and we'll call you in about a minute to talk through what you're looking for —
+            no waiting on hold.
           </p>
-        ) : null}
 
-        <button type="submit" className="btn btn--primary btn--call">
-          Get my call →
-        </button>
-        <p className="footer-note" style={{ margin: 0 }}>
+          <form className="nxq-form" onSubmit={onSubmit} noValidate>
+            <div className="nxq-grid2">
+              <label className="nxq-field">
+                <span>First name</span>
+                <input className="nxq-input" value={first_name} onChange={(e) => setFirstName(e.target.value)} autoComplete="given-name" required />
+              </label>
+              <label className="nxq-field">
+                <span>Last name</span>
+                <input className="nxq-input" value={last_name} onChange={(e) => setLastName(e.target.value)} autoComplete="family-name" />
+              </label>
+            </div>
+
+            <label className="nxq-field">
+              <span>Mobile phone <span className="nxq-req">(required — the number we call)</span></span>
+              <input className="nxq-input" inputMode="tel" autoComplete="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="(555) 555-0100" required />
+            </label>
+
+            <label className="nxq-field">
+              <span>Email <span className="nxq-req">(required — for your appointment confirmation)</span></span>
+              <input className="nxq-input" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" required />
+            </label>
+
+            <label className="nxq-consent">
+              <input type="checkbox" checked={consent_call} onChange={(e) => setConsentCall(e.target.checked)} />
+              <span>
+                I authorize NXG Life Group to contact me at the number provided for a brief consultation call,
+                including through an automated or AI-assisted dialing system. Consent isn't a condition of purchase.
+                Calling rates may apply. I can ask to stop at any time.
+              </span>
+            </label>
+
+            <label className="nxq-consent">
+              <input type="checkbox" checked={consent_email} onChange={(e) => setConsentEmail(e.target.checked)} />
+              <span>
+                Email me my recap and helpful follow-ups. I can unsubscribe anytime. (Your appointment confirmation
+                is sent either way.)
+              </span>
+            </label>
+
+            {errorMsg ? <p className="nxq-error" role="alert">{errorMsg}</p> : null}
+
+            <button type="submit" className="nxq-btn nxq-btn--primary" style={{ width: "100%" }}>
+              Get my call →
+            </button>
+          </form>
+        </div>
+
+        <p className="nxq-legal">
           Educational follow-up only — not financial advice. California residents: see our privacy practices.
         </p>
-      </form>
-    </section>
+      </div>
+    </div>
   );
 }
