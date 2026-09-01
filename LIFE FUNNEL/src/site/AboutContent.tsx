@@ -2,15 +2,19 @@
  * NXG Life Group — company / About page (rendered on /results, after the quiz).
  * The visitor reads this while Greece silently calls them.
  *
- * Assets: drop `public/anthony.jpg` (waist-up photo) — the portrait fills in
- * automatically; until then an elegant gradient frame shows. A gold shield
- * emblem is drawn inline as the brand mark.
+ * Assets (drop into `public/`, no code changes needed):
+ *   • `logo.png` (or .svg) → replaces the built-in shield mark in nav/hero/footer.
+ *   • `anthony.jpg` (waist-up headshot) → fills the About portrait frame.
+ * Until each file exists, an elegant fallback (gold shield / monogram) shows,
+ * so the page never looks broken. Paths + names live in `siteConfig`.
  */
-import { type CSSProperties, type ReactNode } from "react";
+import { type CSSProperties, type ReactNode, useState } from "react";
 import { Link } from "react-router-dom";
 import { siteConfig } from "@/site/siteConfig";
 import { useScrollReveal } from "@/site/useScrollReveal";
 import "@/site/site.css";
+
+const { advisor } = siteConfig;
 
 export function AboutContent() {
   useScrollReveal();
@@ -19,7 +23,7 @@ export function AboutContent() {
       {/* ---------- Nav ---------- */}
       <nav className="nxg-nav">
         <a className="nxg-brand" href="#top">
-          <Shield size={30} /> {siteConfig.companyName}
+          <Brandmark size={30} /> {siteConfig.companyName}
         </a>
         <div className="nxg-navlinks">
           <a className="nxg-hide-sm" href="#services">Services</a>
@@ -38,8 +42,8 @@ export function AboutContent() {
             <span className="nxg-gold">Into Certainty</span>
           </h1>
           <p className="nxg-sub nxg-fade nxg-d2">
-            Because it's not just life insurance — it's assurance. We help California families and
-            business owners protect what matters and plan retirement with clarity, never pressure.
+            Because it's not just life insurance — it's assurance. NXG Life Group helps California
+            families and business owners protect what matters and plan retirement with clarity, never pressure.
           </p>
           <div className="nxg-fade nxg-d3">
             <span className="nxg-reassure">
@@ -54,9 +58,24 @@ export function AboutContent() {
           </div>
         </div>
         <div className="nxg-emblem nxg-fade nxg-d2" aria-hidden>
-          <Shield size={340} />
+          <Brandmark size={340} hero />
         </div>
       </header>
+
+      {/* ---------- Who we are ---------- */}
+      <section className="nxg-section nxg-wrap">
+        <div className="nxg-intro nxg-reveal">
+          <p className="nxg-eyebrow">Who we are</p>
+          <h2>A California practice built on certainty, not sales pressure.</h2>
+          <p className="nxg-lead">
+            {siteConfig.companyName} is an independent life-insurance and retirement practice serving
+            families and business owners across California. We exist to make one of the most confusing
+            financial decisions feel simple: we translate the fine print into plain language, show you
+            two or three clean options that actually fit your life, and let you decide — no jargon, no
+            hypotheticals, no pressure. That's what "turning uncertainty into certainty" means to us.
+          </p>
+        </div>
+      </section>
 
       {/* ---------- Services ---------- */}
       <section id="services" className="nxg-section nxg-wrap">
@@ -89,33 +108,33 @@ export function AboutContent() {
 
       {/* ---------- About Anthony ---------- */}
       <section id="about" className="nxg-section nxg-wrap">
-        <div className="nxg-about nxg-reveal">
-          <div
-            className="nxg-portrait"
-            style={{ ["--img"]: "url('/anthony.jpg')" } as CSSProperties}
-          >
-            <div className="nxg-portrait-cap">
-              <strong>Anthony Morales</strong>
-              <span>Life Insurance Agent · California</span>
-            </div>
-          </div>
+        <div className="nxg-about">
+          <Portrait />
           <div>
             <p className="nxg-eyebrow">Meet your advisor</p>
-            <h2>Hi, I'm Anthony Morales.</h2>
+            <h2>Hi, I'm {advisor.name}.</h2>
             <p>
-              I'm a licensed life-insurance agent serving California families and business owners. My whole
-              approach is clarity over complexity — I'll show you a couple of clean options that actually fit
-              your life, walk through the tradeoffs honestly, and never pressure you.
+              I'm a California-licensed life-insurance agent (Lic. #{advisor.license}) and the person behind
+              {" "}{siteConfig.companyName}. My whole approach is clarity over complexity — I'll show you a
+              couple of clean options that genuinely fit your life, walk through the tradeoffs honestly, and
+              never pressure you into a decision.
+            </p>
+            <p>
+              I work with families and business owners across {advisor.region} on protection, retirement
+              income, Infinite Banking, and tax-aware strategies — coordinating with the professionals
+              already on your team so everything fits together.
             </p>
             <p>
               "Turning uncertainty into certainty" isn't just a line to me — it's how every conversation
               starts. You should understand exactly what you have and why, before you ever commit a dollar.
             </p>
             <ul className="nxg-creds">
-              <li><span>Name</span> <strong>Anthony Morales</strong></li>
-              <li><span>License #</span> <strong>4490102</strong></li>
-              <li><span>Occupation</span> <strong>Life Insurance Agent</strong></li>
-              <li><span>Serving</span> <strong>California</strong></li>
+              <li><span>Name</span> <strong>{advisor.name}</strong></li>
+              <li><span>License #</span> <strong>{advisor.license}</strong></li>
+              <li><span>Occupation</span> <strong>{advisor.title}</strong></li>
+              <li><span>Serving</span> <strong>{advisor.region}</strong></li>
+              {advisor.email ? (<li><span>Email</span> <strong>{advisor.email}</strong></li>) : null}
+              {advisor.phone ? (<li><span>Phone</span> <strong>{advisor.phone}</strong></li>) : null}
             </ul>
           </div>
         </div>
@@ -136,7 +155,7 @@ export function AboutContent() {
             We explain mechanics and fit. If we're not the right match for you, we'll say so.
           </Card>
           <Card index={2} icon={<IcoBadge />} title="Licensed & compliant">
-            California-licensed guidance (Lic. #4490102), coordinated with the professionals already on your team.
+            California-licensed guidance (Lic. #{advisor.license}), coordinated with the professionals already on your team.
           </Card>
         </div>
       </section>
@@ -167,14 +186,14 @@ export function AboutContent() {
       <footer className="nxg-footer nxg-wrap">
         <div className="nxg-footer-top">
           <div>
-            <a className="nxg-brand" href="#top"><Shield size={28} /> {siteConfig.companyName}</a>
+            <a className="nxg-brand" href="#top"><Brandmark size={28} /> {siteConfig.companyName}</a>
             <p className="footer-note" style={{ marginTop: "0.75rem" }}>
               Serving California families &amp; business owners.
             </p>
           </div>
           <div style={{ textAlign: "right" }}>
             <small>NXG Life Group © 2026</small><br />
-            <small>CA License #4490102</small><br />
+            <small>CA License #{advisor.license}</small><br />
             <Link to="/dashboard" style={{ fontSize: "0.85rem" }}>Client Login</Link>
           </div>
         </div>
@@ -200,6 +219,53 @@ function Card({ icon, title, index = 0, children }: { icon: ReactNode; title: st
       <p>{children}</p>
     </article>
   );
+}
+
+/** Advisor portrait: real photo when `public/anthony.jpg` exists, else a monogram. */
+function Portrait() {
+  const [failed, setFailed] = useState(false);
+  const src = siteConfig.advisorPhotoSrc;
+  const initials = advisor.name.split(/\s+/).map((w) => w[0]).slice(0, 2).join("").toUpperCase();
+  return (
+    <div className="nxg-portrait">
+      {src && !failed ? (
+        <img
+          className="nxg-portrait-img"
+          src={src}
+          alt={`${advisor.name}, ${advisor.title}`}
+          loading="lazy"
+          onError={() => setFailed(true)}
+        />
+      ) : (
+        <div className="nxg-portrait-mono" aria-hidden>{initials}</div>
+      )}
+      <div className="nxg-portrait-cap">
+        <strong>{advisor.name}</strong>
+        <span>{advisor.title} · {advisor.region}</span>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Brand mark: the visitor's own logo (`public/logo.png` via siteConfig.logoSrc)
+ * when present, otherwise the built-in gold shield. `hero` renders the large,
+ * glowing emblem variant used in the hero column.
+ */
+function Brandmark({ size = 40, hero = false }: { size?: number; hero?: boolean }) {
+  const [failed, setFailed] = useState(false);
+  if (siteConfig.logoSrc && !failed) {
+    return (
+      <img
+        className={hero ? "nxg-logo-hero" : "nxg-logo-mark"}
+        src={siteConfig.logoSrc}
+        alt={`${siteConfig.companyName} logo`}
+        onError={() => setFailed(true)}
+        style={hero ? undefined : { height: size, width: "auto" }}
+      />
+    );
+  }
+  return <Shield size={size} />;
 }
 
 function Shield({ size = 40 }: { size?: number }) {
