@@ -11,9 +11,13 @@ Visit any URL  →  /  (the quiz loads immediately — no landing page)
                     ↓  visitor answers the ~2-minute questionnaire
                  /details  (name, email, phone, consent)
                     ↓
-                 /results  ← YOUR PAGE. A 15-second countdown runs while they
-                             read it, then Greece calls them and transfers to
-                             Anthony (Cal.com booking is the fallback).
+                 /results  ← YOUR PAGE. The visitor reads it while, silently in
+                             the background, Greece calls them (after
+                             siteConfig.callDelaySeconds) and transfers to
+                             Anthony (Cal.com booking is the fallback). No
+                             countdown or banner is shown.
+
+See docs/website-architecture.md for the full website + dashboard build spec.
 ```
 
 ## The only file you edit
@@ -31,20 +35,18 @@ reference** — it isn't routed anymore; feel free to lift copy from it.
   the wait longer/shorter (currently `15`).
 
 ## What you should NOT touch (it's the plumbing)
-- `src/components/CallCountdown.tsx` — the sticky countdown banner + the Greece
-  trigger. It renders itself at the top of `/results`, above your content.
+- `src/components/CallTrigger.tsx` — the silent Greece trigger. It renders
+  nothing; it just places the call after the delay.
 - `src/pages/QuizPage.tsx`, `src/pages/DetailsPage.tsx`, `src/pages/ResultsPage.tsx`
 - `src/lib/*`, `src/context/*`, `netlify/functions/*`
 
 ## Rules that keep the funnel working
-1. **Don't remove the countdown.** `ResultsPage` renders `<CallCountdown/>` then
-   `<AboutContent/>`. If you restructure `ResultsPage`, keep `<CallCountdown/>`
-   mounted — that's what calls the client. (Best: just edit `AboutContent`.)
+1. **Keep `<CallTrigger/>` mounted** on the post-questionnaire page. `ResultsPage`
+   renders `<CallTrigger/>` then `<AboutContent/>`. It's invisible; that's what
+   calls the client. (Best: just edit `AboutContent`.)
 2. **Don't add a phone/email form to your page.** Contact is already captured on
    `/details`; the call uses that. A second form would double-trigger.
-3. **The countdown banner is `position: sticky; top: 0`.** Don't wrap `/results`
-   in a container that hides overflow at the top, or it won't stick.
-4. **Styling:** existing design tokens (colors, radius, spacing) are in
+3. **Styling:** existing design tokens (colors, radius, spacing) are in
    `src/styles/global.css` (`var(--accent)`, `var(--text)`, etc.). Reuse them for
    a consistent look, or bring your own CSS — both are fine.
 
