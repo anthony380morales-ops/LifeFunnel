@@ -8,6 +8,12 @@
   publish = "dist"
   functions = "netlify/functions"
 
+[build.environment]
+  # These are used ONLY inside netlify/functions (server-side) and are never
+  # referenced in client code, so they can't leak into dist/. Tell Netlify's
+  # secrets scanner not to fail the build on them.
+  SECRETS_SCAN_OMIT_KEYS = "RETELL_API_KEY,RETELL_AGENT_ID,RETELL_FROM_NUMBER,SUPABASE_SERVICE_ROLE_KEY,SUPABASE_URL,TWILIO_ACCOUNT_SID,TWILIO_AUTH_TOKEN,LEAD_FORWARD_WEBHOOK"
+
 [functions]
   node_bundler = "esbuild"
 
