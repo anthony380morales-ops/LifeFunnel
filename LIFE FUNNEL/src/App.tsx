@@ -1,10 +1,15 @@
-import { useEffect } from "react";
+import { Suspense, lazy, useEffect } from "react";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { FunnelProvider } from "@/context/FunnelContext";
 import { QuizPage } from "@/pages/QuizPage";
 import { DetailsPage } from "@/pages/DetailsPage";
 import { ResultsPage } from "@/pages/ResultsPage";
 import { trackPageView } from "@/lib/analytics";
+
+// Lazy-loaded so Supabase only downloads on /dashboard, keeping the funnel light.
+const DashboardApp = lazy(() =>
+  import("@/dashboard/DashboardApp").then((m) => ({ default: m.DashboardApp })),
+);
 
 function AnalyticsRouteLogger() {
   const location = useLocation();
@@ -25,6 +30,15 @@ export default function App() {
           <Route path="/quiz" element={<QuizPage />} />
           <Route path="/details" element={<DetailsPage />} />
           <Route path="/results" element={<ResultsPage />} />
+          {/* Private admin — reached by direct URL, gated by Supabase Auth. */}
+          <Route
+            path="/dashboard/*"
+            element={
+              <Suspense fallback={<div className="section container" style={{ color: "var(--muted)" }}>Loading…</div>}>
+                <DashboardApp />
+              </Suspense>
+            }
+          />
         </Routes>
       </BrowserRouter>
     </FunnelProvider>
