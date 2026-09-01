@@ -57,6 +57,16 @@ export interface QuizAnswers {
   goals_open?: string;
 }
 
+/** Contact details captured on the /details step, used to trigger the Greece call. */
+export interface LeadContact {
+  first_name?: string;
+  last_name?: string;
+  email: string;
+  phone: string;
+  consent_call: boolean;
+  consent_email: boolean;
+}
+
 export interface QuizResultPayload {
   headline: string;
   summaryBullets: string[];

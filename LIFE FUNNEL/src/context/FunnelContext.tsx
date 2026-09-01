@@ -7,9 +7,10 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import type { QuizAnswers } from "@/types/funnel";
+import type { LeadContact, QuizAnswers } from "@/types/funnel";
 
 const RESULT_KEY = "nxg_funnel_completed_quiz";
+const CONTACT_KEY = "nxg_funnel_contact";
 
 interface FunnelContextValue {
   answers: QuizAnswers;
@@ -17,6 +18,9 @@ interface FunnelContextValue {
   resetQuiz: () => void;
   saveCompletedQuiz: (answers: QuizAnswers) => void;
   loadSavedQuiz: () => QuizAnswers | null;
+  /** Contact details captured on /details; drives the Greece callback. */
+  contact: LeadContact | null;
+  setContact: (c: LeadContact) => void;
   clickedCall: boolean;
   setClickedCall: (v: boolean) => void;
   clickedCalendar: boolean;
@@ -43,6 +47,27 @@ export function FunnelProvider({ children }: { children: ReactNode }) {
   }, []);
   const [clickedCall, setClickedCall] = useState(false);
   const [clickedCalendar, setClickedCalendar] = useState(false);
+
+  const [contact, setContactState] = useState<LeadContact | null>(null);
+
+  /** Hydrate contact after refresh so /results still works. */
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem(CONTACT_KEY);
+      if (raw) setContactState(JSON.parse(raw) as LeadContact);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const setContact = useCallback((c: LeadContact) => {
+    setContactState(c);
+    try {
+      sessionStorage.setItem(CONTACT_KEY, JSON.stringify(c));
+    } catch {
+      /* ignore */
+    }
+  }, []);
 
   const setAnswer = useCallback(<K extends keyof QuizAnswers>(key: K, value: QuizAnswers[K] | undefined) => {
     setAnswers((prev) => {
@@ -86,6 +111,8 @@ export function FunnelProvider({ children }: { children: ReactNode }) {
       resetQuiz,
       saveCompletedQuiz,
       loadSavedQuiz,
+      contact,
+      setContact,
       clickedCall,
       setClickedCall,
       clickedCalendar,
@@ -97,6 +124,8 @@ export function FunnelProvider({ children }: { children: ReactNode }) {
       resetQuiz,
       saveCompletedQuiz,
       loadSavedQuiz,
+      contact,
+      setContact,
       clickedCall,
       clickedCalendar,
     ],

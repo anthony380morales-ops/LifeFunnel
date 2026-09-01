@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { FunnelProvider } from "@/context/FunnelContext";
-import { LandingPage } from "@/pages/LandingPage";
 import { QuizPage } from "@/pages/QuizPage";
+import { DetailsPage } from "@/pages/DetailsPage";
 import { ResultsPage } from "@/pages/ResultsPage";
 import { trackPageView } from "@/lib/analytics";
 
@@ -20,8 +20,10 @@ export default function App() {
       <BrowserRouter>
         <AnalyticsRouteLogger />
         <Routes>
-          <Route path="/" element={<LandingPage />} />
+          {/* Any visit drops straight into the questionnaire. */}
+          <Route path="/" element={<QuizPage />} />
           <Route path="/quiz" element={<QuizPage />} />
+          <Route path="/details" element={<DetailsPage />} />
           <Route path="/results" element={<ResultsPage />} />
         </Routes>
       </BrowserRouter>

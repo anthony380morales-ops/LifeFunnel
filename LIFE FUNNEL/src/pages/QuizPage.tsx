@@ -99,7 +99,7 @@ export function QuizPage() {
       saveCompletedQuiz(final);
       clearPartialQuiz();
       trackEvent("quiz_completed", { tags: Object.keys(final) });
-      navigate("/results", { replace: true });
+      navigate("/details", { replace: true });
     },
     [navigate, saveCompletedQuiz],
   );
@@ -132,10 +132,7 @@ export function QuizPage() {
 
   return (
     <section className="section container" style={{ maxWidth: 640 }}>
-      <Link to="/" style={{ fontSize: "0.9rem" }}>
-        ← Back to overview
-      </Link>
-      <p className="eyebrow" style={{ marginTop: "1.5rem" }}>
+      <p className="eyebrow">
         Financial clarity check-in · ~2 minutes
       </p>
       <h1 style={{ marginBottom: "0.5rem" }}>{current.title}</h1>
@@ -194,10 +191,10 @@ export function QuizPage() {
           />
           <div className="stack stack--row-md">
             <button type="button" className="btn btn--primary" onClick={handleGoalsNext}>
-              See my clarity snapshot
+              Continue →
             </button>
             <button type="button" className="btn btn--secondary" onClick={handleGoalsSkip}>
-              Skip &amp; see snapshot
+              Skip
             </button>
           </div>
         </div>
