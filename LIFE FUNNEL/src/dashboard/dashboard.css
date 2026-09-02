@@ -187,35 +187,7 @@
 .dash-login-form { display: grid; gap: 1rem; text-align: left; }
 .dash-login-foot { margin-top: 1.5rem; font-size: 0.78rem; color: var(--muted); }
 
-/* ---------- Section tabs (Leads / Studio) ---------- */
-.dash-tabs { display: inline-flex; gap: 2px; padding: 3px; border-radius: 10px; background: var(--dash-surface-2); border: 1px solid var(--dash-line); }
-.dash-tabs button { border: none; background: none; color: var(--muted); font-family: inherit; font-size: 0.85rem; font-weight: 600; padding: 0.4rem 0.9rem; border-radius: 8px; cursor: pointer; transition: background 0.15s ease, color 0.15s ease; }
-.dash-tabs button:hover { color: var(--text); }
-.dash-tabs button.is-on { background: rgba(201,162,39,0.16); color: var(--accent); }
-
-/* ---------- Marketing Studio ---------- */
-.studio-grid { display: grid; grid-template-columns: minmax(320px, 420px) 1fr; gap: 1rem; margin-top: 0.5rem; }
-@media (max-width: 820px) { .studio-grid { grid-template-columns: 1fr; } }
-.studio-form { display: grid; gap: 1rem; align-content: start; }
-.studio-toggle { display: inline-flex; gap: 2px; padding: 3px; border-radius: 10px; background: var(--dash-surface-2); border: 1px solid var(--dash-line); width: fit-content; }
-.studio-toggle button { border: none; background: none; color: var(--muted); font-family: inherit; font-weight: 600; font-size: 0.9rem; padding: 0.45rem 1.1rem; border-radius: 8px; cursor: pointer; }
-.studio-toggle button.is-on { background: rgba(201,162,39,0.16); color: var(--accent); }
-.studio-row { display: grid; grid-template-columns: 1fr auto; gap: 0.75rem; align-items: end; }
-.studio-row .studio-dur { max-width: 96px; }
-.studio-count { font-size: 0.72rem; color: var(--muted); text-align: right; }
-.studio-cost { font-size: 0.82rem; color: var(--accent); margin: 0; }
-.studio-note { font-size: 0.78rem; color: var(--muted); margin: 0.25rem 0 0; }
-.studio-note code { background: rgba(15,23,42,0.7); padding: 0.05rem 0.35rem; border-radius: 5px; }
-
-.studio-output { min-height: 320px; display: grid; }
-.studio-placeholder { display: grid; place-items: center; align-content: center; gap: 0.6rem; color: var(--muted); text-align: center; padding: 2rem; }
-.studio-results { display: grid; gap: 0.75rem; justify-items: center; align-content: start; }
-.studio-media { max-width: 100%; max-height: 60vh; border-radius: 12px; border: 1px solid var(--dash-line); }
-.studio-spinner { width: 34px; height: 34px; border-radius: 50%; border: 3px solid rgba(201,162,39,0.25); border-top-color: var(--accent); animation: dashSpin 0.8s linear infinite; }
-@keyframes dashSpin { to { transform: rotate(360deg); } }
-
 @media (prefers-reduced-motion: reduce) {
   .dash-scrim, .dash-drawer { animation: none; }
   .dash-bar-fill { transition: none; }
-  .studio-spinner { animation: none; }
 }

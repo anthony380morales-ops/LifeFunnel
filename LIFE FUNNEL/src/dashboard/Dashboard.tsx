@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { supabase, type Lead } from "@/dashboard/supabase";
 import { siteConfig } from "@/site/siteConfig";
 import { LeadDrawer } from "@/dashboard/LeadDrawer";
-import { MarketingStudio } from "@/dashboard/MarketingStudio";
 import { DEMO_LEADS } from "@/dashboard/demoLeads";
 import {
   callWindow,
@@ -25,7 +24,6 @@ export function Dashboard({ demo = false }: { demo?: boolean } = {}) {
   const [loading, setLoading] = useState(!demo);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [now, setNow] = useState(() => new Date());
-  const [view, setView] = useState<"leads" | "studio">("leads");
 
   // Tick each minute so the TCPA window badge stays accurate.
   useEffect(() => {
@@ -118,10 +116,6 @@ export function Dashboard({ demo = false }: { demo?: boolean } = {}) {
           </div>
         </div>
         <div className="dash-top-right">
-          <nav className="dash-tabs" aria-label="Dashboard sections">
-            <button className={view === "leads" ? "is-on" : ""} onClick={() => setView("leads")}>Leads</button>
-            <button className={view === "studio" ? "is-on" : ""} onClick={() => setView("studio")}>Studio</button>
-          </nav>
           <span className={`dash-window ${win.open ? "is-open" : "is-quiet"}`} title="TCPA calling window (8am–9pm PT)">
             <span className="dot" /> {win.label}
           </span>
@@ -130,7 +124,6 @@ export function Dashboard({ demo = false }: { demo?: boolean } = {}) {
       </header>
 
       <div className="dash-wrap">
-        {view === "studio" ? <MarketingStudio demo={demo} /> : <>
         {/* KPI row */}
         <div className="dash-kpis">
           <Kpi n={kpis.total} l="Total leads" />
@@ -220,7 +213,6 @@ export function Dashboard({ demo = false }: { demo?: boolean } = {}) {
             </div>
           )}
         </div>
-        </>}
       </div>
 
       {selected ? <LeadDrawer lead={selected} demo={demo} onClose={() => setSelectedId(null)} /> : null}
