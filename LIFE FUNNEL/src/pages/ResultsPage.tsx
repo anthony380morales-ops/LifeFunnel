@@ -2,7 +2,7 @@ import { Navigate } from "react-router-dom";
 import { useFunnel } from "@/context/FunnelContext";
 import { isQuizComplete } from "@/lib/quizLogic";
 import { CallTrigger } from "@/components/CallTrigger";
-import { AboutContent } from "@/site/AboutContent";
+import { PortfolioContent } from "@/site/PortfolioContent";
 
 /**
  * The company / About page a visitor reads AFTER the questionnaire. A silent
@@ -18,7 +18,7 @@ export function ResultsPage() {
   return (
     <>
       <CallTrigger />
-      <AboutContent />
+      <PortfolioContent />
     </>
   );
 }
