@@ -166,8 +166,6 @@ export function PortfolioContent() {
     };
   }, []);
 
-  const calendarUrl = (import.meta.env.VITE_CALENDAR_URL as string) || "#top";
-
   return (
     <div className="pf" ref={rootRef} id="top">
       <span className="pf-progress" ref={railRef}><i /></span>
@@ -226,8 +224,7 @@ export function PortfolioContent() {
           <div className="pf-finale-inner">
             <h2 className="pf-gold">Turning Uncertainty<br />Into Certainty</h2>
             <div className="pf-cta">
-              <a className="pf-btn pf-btn--gold" href={calendarUrl}>Book a Strategy Session</a>
-              <a className="pf-btn pf-btn--ghost" href={IG_URL} target="_blank" rel="noreferrer">Follow @ibluezcluezflow</a>
+              <a className="pf-btn pf-btn--ghost pf-btn--xl" href={IG_URL} target="_blank" rel="noreferrer">Follow @ibluezcluezflow</a>
             </div>
           </div>
         </div>
