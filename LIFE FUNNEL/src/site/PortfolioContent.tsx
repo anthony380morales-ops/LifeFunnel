@@ -132,7 +132,14 @@ export function PortfolioContent() {
       finaleInner?.classList.toggle("cta-in", cp > 0.6);
     }
 
+    // Always enter at the very top so the intro plays from frame 0 — the quiz
+    // route can otherwise hand off a preserved scroll position.
+    const prevRestoration = history.scrollRestoration;
+    if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+    window.scrollTo(0, 0);
+
     const lenis = new Lenis({ lerp: 0.09, smoothWheel: true });
+    lenis.scrollTo(0, { immediate: true, force: true });
     let rafId = 0;
     function raf(time: number) { lenis.raf(time); update(); rafId = requestAnimationFrame(raf); }
     rafId = requestAnimationFrame(raf);
@@ -141,6 +148,7 @@ export function PortfolioContent() {
       cancelAnimationFrame(rafId);
       window.removeEventListener("resize", resize);
       lenis.destroy();
+      if ("scrollRestoration" in history) history.scrollRestoration = prevRestoration;
     };
   }, []);
 
