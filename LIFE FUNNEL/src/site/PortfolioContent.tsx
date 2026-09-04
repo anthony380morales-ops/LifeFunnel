@@ -62,6 +62,14 @@ export function PortfolioContent() {
       })
       .catch(() => { /* no footage yet — placeholder stays */ });
 
+    // Nudge the background videos to play (covers iOS/Safari, which sometimes
+    // ignore the autoplay attribute even when muted + playsInline).
+    root.querySelectorAll<HTMLVideoElement>("video.pf-bg").forEach((v) => {
+      const tryPlay = () => v.play().catch(() => { /* will retry on first interaction */ });
+      tryPlay();
+      v.addEventListener("canplay", tryPlay, { once: true });
+    });
+
     // ---- hi-DPI canvas sizing ----
     function resize() {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -193,16 +201,17 @@ export function PortfolioContent() {
             <p className="pf-subtitle">Life Insurance Agent</p>
           </div>
           <div className="pf-scrollhint">Scroll</div>
-          {/* placeholder marker — remove-free: hidden once real frames load */}
-          <span className="pf-slot">Hero orbit · Veo clip renders here</span>
         </div>
       </section>
 
       {/* ---------- THREE PILLARS ---------- */}
       <section className="pf-pillars" ref={pillarsRef}>
         <div className="pf-pillars-stage">
-          <video className="pf-bg" data-media="/media/builder.mp4" autoPlay muted loop playsInline
-            style={{ opacity: 0.5, display: "none" }} />
+          <video className="pf-bg" poster="/media/builder-poster.jpg"
+            autoPlay muted loop playsInline preload="auto" style={{ opacity: 0.88 }}>
+            <source src="/media/builder.webm" type="video/webm" />
+            <source src="/media/builder.mp4" type="video/mp4" />
+          </video>
           <div className="pf-bg-fallback" aria-hidden />
           <div className="pf-veil" aria-hidden />
           <div className="pf-pillars-inner">
@@ -222,8 +231,11 @@ export function PortfolioContent() {
 
       {/* ---------- FINALE ---------- */}
       <section className="pf-finale">
-        <video className="pf-bg" data-media="/media/closer.mp4" autoPlay muted loop playsInline
-          style={{ opacity: 0.4, display: "none" }} />
+        <video className="pf-bg" poster="/media/closer-poster.jpg"
+          autoPlay muted loop playsInline preload="auto" style={{ opacity: 0.75 }}>
+          <source src="/media/closer.webm" type="video/webm" />
+          <source src="/media/closer.mp4" type="video/mp4" />
+        </video>
         <div className="pf-bg-fallback" aria-hidden />
         <div className="pf-veil" aria-hidden />
         <div className="pf-finale-inner">

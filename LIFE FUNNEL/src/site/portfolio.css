@@ -74,7 +74,7 @@
 .pf-pillars-stage { position: sticky; top: 0; height: 100vh; overflow: hidden; display: grid; place-content: center; }
 .pf-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
 .pf-bg-fallback { position: absolute; inset: 0; z-index: 0; background: radial-gradient(90% 70% at 70% 30%, var(--navy-2), var(--navy-0) 75%); }
-.pf-veil { position: absolute; inset: 0; z-index: 1; background: linear-gradient(90deg, rgba(5,8,15,0.86) 0%, rgba(5,8,15,0.55) 55%, rgba(5,8,15,0.35) 100%); }
+.pf-veil { position: absolute; inset: 0; z-index: 1; background: linear-gradient(90deg, rgba(5,8,15,0.9) 0%, rgba(5,8,15,0.45) 50%, rgba(5,8,15,0.08) 100%); }
 .pf-pillars-inner { position: relative; z-index: 2; width: min(1100px, 92vw); margin-inline: auto; }
 .pf-eyebrow { font-family: "Oswald", sans-serif; letter-spacing: 0.34em; text-transform: uppercase; color: var(--gold); font-size: 0.78rem; margin: 0 0 2rem; }
 .pf-pillar { display: flex; align-items: baseline; gap: clamp(0.8rem, 2vw, 1.6rem); padding: clamp(0.5rem, 1.5vw, 1rem) 0; opacity: 0.14; transform: translateX(-28px); transition: opacity 0.6s cubic-bezier(0.22,1,0.36,1), transform 0.6s cubic-bezier(0.22,1,0.36,1); border-bottom: 1px solid rgba(143,163,200,0.12); }
@@ -86,7 +86,7 @@
 
 /* ---------- Section 3 · FINALE ---------- */
 .pf-finale { position: relative; min-height: 100vh; display: grid; place-content: center; text-align: center; overflow: hidden; padding: clamp(3rem, 8vw, 7rem) 1.5rem; }
-.pf-finale .pf-veil { background: radial-gradient(90% 90% at 50% 50%, rgba(5,8,15,0.55), rgba(5,8,15,0.9) 80%); }
+.pf-finale .pf-veil { background: radial-gradient(100% 100% at 50% 45%, rgba(5,8,15,0.25), rgba(5,8,15,0.72) 85%); }
 .pf-finale-inner { position: relative; z-index: 2; width: min(1100px, 92vw); }
 .pf-finale h2 { font-family: "Anton", sans-serif; font-weight: 400; text-transform: uppercase; font-size: clamp(2.4rem, 9vw, 8rem); line-height: 0.9; margin: 0 0 2.2rem; }
 .pf-cta { display: inline-flex; flex-wrap: wrap; gap: 1rem; justify-content: center; }
