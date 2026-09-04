@@ -2,15 +2,48 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
   useState,
   type ReactNode,
 } from "react";
 import type { LeadContact, QuizAnswers } from "@/types/funnel";
 
+// Persisted in localStorage (not sessionStorage) so a device that has already
+// completed the funnel is remembered across refreshes, new tabs, and return
+// visits — the visitor skips the quiz and drops straight into the portfolio.
 const RESULT_KEY = "nxg_funnel_completed_quiz";
 const CONTACT_KEY = "nxg_funnel_contact";
+
+/**
+ * Device memory: read a previously completed funnel (quiz answers + contact)
+ * from localStorage. Returns null if this device has never finished the funnel.
+ * Used to route returning visitors past the quiz.
+ */
+export function readFunnelMemory(): { answers: QuizAnswers; contact: LeadContact } | null {
+  try {
+    const rawResult = localStorage.getItem(RESULT_KEY);
+    const rawContact = localStorage.getItem(CONTACT_KEY);
+    if (!rawResult || !rawContact) return null;
+    const answers = (JSON.parse(rawResult) as { answers?: QuizAnswers }).answers;
+    const contact = JSON.parse(rawContact) as LeadContact;
+    if (!answers || Object.keys(answers).length === 0 || !contact?.phone) return null;
+    return { answers, contact };
+  } catch {
+    return null;
+  }
+}
+
+/** Forget this device (used by an explicit "retake the quiz" reset). Also
+ *  clears the call-fired guard so a genuine retake can place a fresh call. */
+export function clearFunnelMemory(): void {
+  try {
+    localStorage.removeItem(RESULT_KEY);
+    localStorage.removeItem(CONTACT_KEY);
+    localStorage.removeItem("nxg_funnel_call_fired");
+  } catch {
+    /* ignore */
+  }
+}
 
 interface FunnelContextValue {
   answers: QuizAnswers;
@@ -30,40 +63,35 @@ interface FunnelContextValue {
 const FunnelContext = createContext<FunnelContextValue | null>(null);
 
 export function FunnelProvider({ children }: { children: ReactNode }) {
-  const [answers, setAnswers] = useState<QuizAnswers>({});
-
-  /** Hydrate quiz answers after refresh so /results still works */
-  useEffect(() => {
+  // Hydrate synchronously from device memory so returning visitors land on
+  // /results without a render gap that would bounce them back to the quiz.
+  const [answers, setAnswers] = useState<QuizAnswers>(() => {
     try {
-      const raw = sessionStorage.getItem(RESULT_KEY);
-      if (!raw) return;
-      const parsed = JSON.parse(raw) as { answers?: QuizAnswers };
-      if (parsed.answers && Object.keys(parsed.answers).length > 0) {
-        setAnswers(parsed.answers);
-      }
+      const raw = localStorage.getItem(RESULT_KEY);
+      const parsed = raw ? (JSON.parse(raw) as { answers?: QuizAnswers }) : null;
+      if (parsed?.answers && Object.keys(parsed.answers).length > 0) return parsed.answers;
     } catch {
       /* ignore */
     }
-  }, []);
+    return {};
+  });
   const [clickedCall, setClickedCall] = useState(false);
   const [clickedCalendar, setClickedCalendar] = useState(false);
 
-  const [contact, setContactState] = useState<LeadContact | null>(null);
-
-  /** Hydrate contact after refresh so /results still works. */
-  useEffect(() => {
+  const [contact, setContactState] = useState<LeadContact | null>(() => {
     try {
-      const raw = sessionStorage.getItem(CONTACT_KEY);
-      if (raw) setContactState(JSON.parse(raw) as LeadContact);
+      const raw = localStorage.getItem(CONTACT_KEY);
+      if (raw) return JSON.parse(raw) as LeadContact;
     } catch {
       /* ignore */
     }
-  }, []);
+    return null;
+  });
 
   const setContact = useCallback((c: LeadContact) => {
     setContactState(c);
     try {
-      sessionStorage.setItem(CONTACT_KEY, JSON.stringify(c));
+      localStorage.setItem(CONTACT_KEY, JSON.stringify(c));
     } catch {
       /* ignore */
     }
@@ -84,7 +112,7 @@ export function FunnelProvider({ children }: { children: ReactNode }) {
 
   const saveCompletedQuiz = useCallback((a: QuizAnswers) => {
     try {
-      sessionStorage.setItem(
+      localStorage.setItem(
         RESULT_KEY,
         JSON.stringify({ answers: a, completedAt: new Date().toISOString() }),
       );
@@ -95,7 +123,7 @@ export function FunnelProvider({ children }: { children: ReactNode }) {
 
   const loadSavedQuiz = useCallback((): QuizAnswers | null => {
     try {
-      const raw = sessionStorage.getItem(RESULT_KEY);
+      const raw = localStorage.getItem(RESULT_KEY);
       if (!raw) return null;
       const parsed = JSON.parse(raw) as { answers: QuizAnswers };
       return parsed.answers ?? null;

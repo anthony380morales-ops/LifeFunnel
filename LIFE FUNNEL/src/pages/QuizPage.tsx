@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useFunnel } from "@/context/FunnelContext";
+import { useFunnel, readFunnelMemory, clearFunnelMemory } from "@/context/FunnelContext";
 import { getVisibleQuestions, isQuizComplete, QUIZ_QUESTIONS } from "@/lib/quizLogic";
 import { trackEvent } from "@/lib/analytics";
 import { siteConfig } from "@/site/siteConfig";
@@ -21,12 +21,23 @@ export function QuizPage() {
   const [stepIndex, setStepIndex] = useState(0);
   const startedTracked = useRef(false);
 
+  // Device memory: if this device already completed the funnel, skip the quiz
+  // and drop straight into the portfolio — unless an explicit retake was asked
+  // for (navigated here with { reset: true }).
+  const resetRequested =
+    !!location.state && typeof location.state === "object" && "reset" in location.state;
+  const [remembered] = useState(() => !resetRequested && readFunnelMemory() != null);
+  useEffect(() => {
+    if (remembered) navigate("/results", { replace: true });
+  }, [remembered, navigate]);
+
   const visibleQuestions = useMemo(() => getVisibleQuestions(answers), [answers]);
   const current = visibleQuestions[stepIndex];
 
   useEffect(() => {
     if (location.state && typeof location.state === "object" && "reset" in location.state) {
       clearPartialQuiz();
+      clearFunnelMemory();
       QUIZ_QUESTIONS.forEach((q) => setAnswer(q.id, undefined));
       setStepIndex(0);
       navigate(location.pathname, { replace: true, state: {} });
@@ -120,6 +131,9 @@ export function QuizPage() {
   const handleBack = useCallback(() => {
     setStepIndex((s) => Math.max(0, s - 1));
   }, []);
+
+  // Remembered device — render nothing while the redirect to /results runs.
+  if (remembered) return null;
 
   if (!current) {
     return (

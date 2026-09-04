@@ -10,7 +10,9 @@ const FIRED_KEY = "nxg_funnel_call_fired";
  * Silent trigger. Mount this anywhere on the post-questionnaire page. After
  * `delaySeconds` it places the Greece call exactly once (submitLead) — no UI,
  * no countdown, so the visitor just browses and their phone rings.
- * Guarded against refresh/remount double-fire within the session.
+ * Guarded (localStorage) against double-fire across refreshes, new tabs, and
+ * return visits — a remembered device that already got its call is never
+ * re-dialed when it re-enters the portfolio.
  */
 export function CallTrigger({ delaySeconds = siteConfig.callDelaySeconds }: { delaySeconds?: number }) {
   const { answers, contact, setClickedCall } = useFunnel();
@@ -19,7 +21,7 @@ export function CallTrigger({ delaySeconds = siteConfig.callDelaySeconds }: { de
   useEffect(() => {
     if (!contact) return;
     try {
-      if (sessionStorage.getItem(FIRED_KEY)) return;
+      if (localStorage.getItem(FIRED_KEY)) return;
     } catch {
       /* ignore */
     }
@@ -27,8 +29,8 @@ export function CallTrigger({ delaySeconds = siteConfig.callDelaySeconds }: { de
     const timer = window.setTimeout(() => {
       if (firedRef.current) return;
       try {
-        if (sessionStorage.getItem(FIRED_KEY)) return;
-        sessionStorage.setItem(FIRED_KEY, "1");
+        if (localStorage.getItem(FIRED_KEY)) return;
+        localStorage.setItem(FIRED_KEY, "1");
       } catch {
         /* ignore */
       }
