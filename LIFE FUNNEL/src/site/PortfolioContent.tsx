@@ -48,19 +48,25 @@ export function PortfolioContent() {
     placeholder.src = siteConfig.advisorPhotoSrc || "/anthony.jpg";
     let frames: HTMLImageElement[] = [];
 
-    fetch("/media/orbit/manifest.json")
-      .then((r) => (r.ok ? r.json() : Promise.reject()))
-      .then((m: { count: number; pattern: string }) => {
-        frames = Array.from({ length: m.count }, (_, i) => {
-          const img = new Image();
-          const name = m.pattern.replace(/%0(\d)d/, (_s, d) =>
-            String(i + 1).padStart(Number(d), "0"),
-          );
-          img.src = `/media/orbit/${name}`;
-          return img;
-        });
-      })
-      .catch(() => { /* no footage yet — placeholder stays */ });
+    // Inlined data-URI frames (used by the standalone preview build); else fetch.
+    const inlined = (window as unknown as { __ORBIT_FRAMES__?: string[] }).__ORBIT_FRAMES__;
+    if (Array.isArray(inlined) && inlined.length) {
+      frames = inlined.map((uri) => { const img = new Image(); img.src = uri; return img; });
+    } else {
+      fetch("/media/orbit/manifest.json")
+        .then((r) => (r.ok ? r.json() : Promise.reject()))
+        .then((m: { count: number; pattern: string }) => {
+          frames = Array.from({ length: m.count }, (_, i) => {
+            const img = new Image();
+            const name = m.pattern.replace(/%0(\d)d/, (_s, d) =>
+              String(i + 1).padStart(Number(d), "0"),
+            );
+            img.src = `/media/orbit/${name}`;
+            return img;
+          });
+        })
+        .catch(() => { /* no footage yet — placeholder stays */ });
+    }
 
     // Nudge the background videos to play (covers iOS/Safari, which sometimes
     // ignore the autoplay attribute even when muted + playsInline).

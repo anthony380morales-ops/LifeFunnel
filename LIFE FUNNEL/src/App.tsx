@@ -4,6 +4,7 @@ import { FunnelProvider } from "@/context/FunnelContext";
 import { QuizPage } from "@/pages/QuizPage";
 import { DetailsPage } from "@/pages/DetailsPage";
 import { ResultsPage } from "@/pages/ResultsPage";
+import { PortfolioContent } from "@/site/PortfolioContent";
 import { trackPageView } from "@/lib/analytics";
 
 // Lazy-loaded so Supabase only downloads on /dashboard, keeping the funnel light.
@@ -20,6 +21,10 @@ function AnalyticsRouteLogger() {
 }
 
 export default function App() {
+  // Preview-only build (VITE_PREVIEW): open straight to the portfolio webpage,
+  // no quiz gate. Inert in production (the flag is only set for the preview build).
+  if (import.meta.env.VITE_PREVIEW) return <PortfolioContent />;
+
   return (
     <FunnelProvider>
       <BrowserRouter>
