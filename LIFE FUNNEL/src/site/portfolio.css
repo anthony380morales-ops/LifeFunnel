@@ -46,11 +46,17 @@
   filter: drop-shadow(0 2px 18px rgba(201, 162, 39, 0.45));
 }
 
+/* ---------- Shared scrub stage (each clip scroll-scrubs on a pinned canvas) ---------- */
+.pf-stage-wrap { position: relative; }
+.pf-stage { position: sticky; top: 0; height: 100vh; overflow: hidden; }
+.pf-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; z-index: 0; }
+.pf-veil { position: absolute; inset: 0; z-index: 1; }
+.pf-veil--side { background: linear-gradient(90deg, rgba(5,8,15,0.9) 0%, rgba(5,8,15,0.45) 50%, rgba(5,8,15,0.08) 100%); }
+.pf-veil--center { background: radial-gradient(100% 100% at 50% 45%, rgba(5,8,15,0.28), rgba(5,8,15,0.74) 85%); }
+
 /* ---------- Section 1 · HERO ORBIT ---------- */
-.pf-hero { position: relative; height: 400vh; }
-.pf-hero-stage { position: sticky; top: 0; height: 100vh; overflow: hidden; background: radial-gradient(120% 90% at 50% 40%, var(--navy-2) 0%, var(--navy-0) 70%); }
-.pf-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-.pf-hero-overlay { position: absolute; inset: 0; display: grid; align-content: end; justify-items: center; text-align: center; padding: 0 1.5rem clamp(3.5rem, 10vh, 8rem); pointer-events: none; }
+.pf-hero { height: 380vh; }
+.pf-hero-overlay { position: absolute; inset: 0; z-index: 2; display: grid; align-content: end; justify-items: center; text-align: center; padding: 0 1.5rem clamp(3.5rem, 10vh, 8rem); pointer-events: none; }
 .pf-title {
   font-family: "Anton", "Oswald", sans-serif; font-weight: 400;
   font-size: clamp(3rem, 13.5vw, 12.5rem); line-height: 0.86; letter-spacing: 0.01em;
@@ -66,15 +72,9 @@
 .pf-scrollhint::after { content: ""; width: 1px; height: 34px; background: linear-gradient(var(--gold), transparent); animation: pfDrop 1.8s ease-in-out infinite; }
 @keyframes pfDrop { 0% { transform: scaleY(0); transform-origin: top; } 50% { transform: scaleY(1); transform-origin: top; } 51% { transform-origin: bottom; } 100% { transform: scaleY(0); transform-origin: bottom; } }
 
-/* placeholder caption chip shown until real footage arrives */
-.pf-slot { position: absolute; bottom: 1.4rem; right: 1.4rem; z-index: 3; font-family: "Oswald", sans-serif; font-size: 0.66rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); border: 1px solid rgba(201,162,39,0.3); background: rgba(6,8,15,0.5); padding: 0.4rem 0.7rem; border-radius: 999px; }
-
-/* ---------- Section 2 · THREE PILLARS ---------- */
-.pf-pillars { position: relative; height: 400vh; }
-.pf-pillars-stage { position: sticky; top: 0; height: 100vh; overflow: hidden; display: grid; place-content: center; }
-.pf-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
-.pf-bg-fallback { position: absolute; inset: 0; z-index: 0; background: radial-gradient(90% 70% at 70% 30%, var(--navy-2), var(--navy-0) 75%); }
-.pf-veil { position: absolute; inset: 0; z-index: 1; background: linear-gradient(90deg, rgba(5,8,15,0.9) 0%, rgba(5,8,15,0.45) 50%, rgba(5,8,15,0.08) 100%); }
+/* ---------- Section 2 · THREE PILLARS (Builder scrub) ---------- */
+.pf-pillars { height: 400vh; }
+.pf-pillars .pf-stage { display: grid; place-content: center; }
 .pf-pillars-inner { position: relative; z-index: 2; width: min(1100px, 92vw); margin-inline: auto; }
 .pf-eyebrow { font-family: "Oswald", sans-serif; letter-spacing: 0.34em; text-transform: uppercase; color: var(--gold); font-size: 0.78rem; margin: 0 0 2rem; }
 .pf-pillar { display: flex; align-items: baseline; gap: clamp(0.8rem, 2vw, 1.6rem); padding: clamp(0.5rem, 1.5vw, 1rem) 0; opacity: 0.14; transform: translateX(-28px); transition: opacity 0.6s cubic-bezier(0.22,1,0.36,1), transform 0.6s cubic-bezier(0.22,1,0.36,1); border-bottom: 1px solid rgba(143,163,200,0.12); }
@@ -84,25 +84,32 @@
 .pf-pillar p { margin: 0.4rem 0 0; color: var(--muted); max-width: 42ch; font-size: clamp(0.85rem, 1.4vw, 1rem); }
 .pf-pillar .body { display: grid; }
 
-/* ---------- Section 3 · FINALE ---------- */
-.pf-finale { position: relative; min-height: 100vh; display: grid; place-content: center; text-align: center; overflow: hidden; padding: clamp(3rem, 8vw, 7rem) 1.5rem; }
-.pf-finale .pf-veil { background: radial-gradient(100% 100% at 50% 45%, rgba(5,8,15,0.25), rgba(5,8,15,0.72) 85%); }
-.pf-finale-inner { position: relative; z-index: 2; width: min(1100px, 92vw); }
-.pf-finale h2 { font-family: "Anton", sans-serif; font-weight: 400; text-transform: uppercase; font-size: clamp(2.4rem, 9vw, 8rem); line-height: 0.9; margin: 0 0 2.2rem; }
-.pf-cta { display: inline-flex; flex-wrap: wrap; gap: 1rem; justify-content: center; }
+/* ---------- Section 3 · FINALE (Closer scrub) ---------- */
+.pf-closer { height: 340vh; }
+.pf-closer .pf-stage { display: grid; place-content: center; }
+.pf-finale-inner { position: relative; z-index: 2; width: min(1100px, 92vw); text-align: center; }
+.pf-finale-inner h2 { font-family: "Anton", sans-serif; font-weight: 400; text-transform: uppercase; font-size: clamp(2.4rem, 9vw, 8rem); line-height: 0.9; margin: 0 0 2.2rem;
+  opacity: 0; transform: translateY(26px); transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.22,1,0.36,1); }
+.pf-finale-inner.head-in h2 { opacity: 1; transform: none; }
+.pf-cta { display: inline-flex; flex-wrap: wrap; gap: 1rem; justify-content: center;
+  opacity: 0; transform: translateY(18px); transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.22,1,0.36,1); }
+.pf-finale-inner.cta-in .pf-cta { opacity: 1; transform: none; }
 .pf-btn { font-family: "Oswald", sans-serif; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; font-size: 0.92rem; padding: 1rem 2rem; border-radius: 999px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease; border: 1px solid transparent; }
 .pf-btn--gold { background: linear-gradient(135deg, var(--gold-bright), var(--gold) 55%, var(--gold-deep)); color: #1a1405; box-shadow: 0 14px 40px rgba(201,162,39,0.34); }
 .pf-btn--gold:hover { transform: translateY(-3px); box-shadow: 0 20px 50px rgba(201,162,39,0.5); }
 .pf-btn--ghost { border-color: rgba(201,162,39,0.5); color: var(--gold-bright); background: rgba(201,162,39,0.06); }
 .pf-btn--ghost:hover { transform: translateY(-3px); background: rgba(201,162,39,0.14); }
 
-.pf-footer { position: relative; z-index: 2; margin-top: clamp(3rem, 8vw, 6rem); display: flex; flex-wrap: wrap; gap: 1rem 2rem; align-items: center; justify-content: center; color: var(--muted); font-size: 0.85rem; }
+/* ---------- Footer (static block) ---------- */
+.pf-footer-block { position: relative; z-index: 2; background: var(--navy-0); text-align: center; padding: clamp(3rem, 8vw, 6rem) 1.5rem clamp(2.5rem, 6vw, 4rem); border-top: 1px solid rgba(143,163,200,0.1); }
+.pf-footer { display: flex; flex-wrap: wrap; gap: 1rem 2rem; align-items: center; justify-content: center; color: var(--muted); font-size: 0.85rem; }
 .pf-footer a { color: var(--gold); text-decoration: none; }
 .pf-footer a:hover { color: var(--gold-bright); }
 .pf-footer .sep { opacity: 0.4; }
-.pf-disclaimer { position: relative; z-index: 2; margin: 1.5rem auto 0; max-width: 80ch; font-size: 0.72rem; color: rgba(143,163,200,0.7); line-height: 1.5; }
+.pf-disclaimer { margin: 1.5rem auto 0; max-width: 80ch; font-size: 0.72rem; color: rgba(143,163,200,0.7); line-height: 1.5; }
 
 @media (prefers-reduced-motion: reduce) {
   .pf-letter, .pf-subtitle, .pf-pillar { transition: none; opacity: 1; transform: none; }
+  .pf-finale-inner h2, .pf-cta { opacity: 1; transform: none; transition: none; }
   .pf-scrollhint::after { animation: none; }
 }
