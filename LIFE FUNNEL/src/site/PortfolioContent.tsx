@@ -70,9 +70,6 @@ export function PortfolioContent() {
     const builder = loadSet("__BUILDER_FRAMES__", "/media/builder/manifest.json", "/media/builder");
     const closer = loadSet("__CLOSER_FRAMES__", "/media/closer/manifest.json", "/media/closer");
 
-    const placeholder = new Image();
-    placeholder.src = siteConfig.advisorPhotoSrc || "/anthony.jpg";
-
     const canvases = [heroCanvasRef.current!, pillarsCanvasRef.current!, closerCanvasRef.current!];
     const ctxs = canvases.map((c) => c.getContext("2d")!);
 
@@ -95,23 +92,7 @@ export function PortfolioContent() {
       ctx.drawImage(img, (w - dw) / 2 + panX, (h - dh) * alignY, dw, dh);
     }
 
-    // hero procedural fallback (shows only until orbit frames arrive)
-    function heroPlaceholder(ctx: CanvasRenderingContext2D, w: number, h: number, p: number) {
-      const cx = w / 2, cy = h * 0.46, min = Math.min(w, h);
-      drawCover(ctx, placeholder, w, h, 1.16 - p * 0.14, (p - 0.5) * w * 0.05, 0.16);
-      ctx.fillStyle = "rgba(6,10,22,0.5)"; ctx.fillRect(0, 0, w, h);
-      const ang = p * Math.PI * 2;
-      const lx = cx + Math.cos(ang) * w * 0.34, ly = cy + Math.sin(ang) * h * 0.16;
-      const rg = ctx.createRadialGradient(lx, ly, 0, lx, ly, Math.max(w, h) * 0.5);
-      rg.addColorStop(0, "rgba(246,222,134,0.30)"); rg.addColorStop(0.5, "rgba(201,162,39,0.06)"); rg.addColorStop(1, "rgba(0,0,0,0)");
-      ctx.fillStyle = rg; ctx.fillRect(0, 0, w, h);
-      ctx.save(); ctx.translate(cx, cy); ctx.rotate(ang);
-      ctx.strokeStyle = "rgba(201,162,39,0.22)"; ctx.lineWidth = 1.5;
-      ctx.beginPath(); ctx.ellipse(0, 0, min * 0.36, min * 0.13, 0, 0, Math.PI * 2); ctx.stroke();
-      ctx.restore();
-    }
-
-    function drawStage(ci: number, frames: HTMLImageElement[], p: number, alignY: number, vignette: number, useHeroFallback = false) {
+    function drawStage(ci: number, frames: HTMLImageElement[], p: number, alignY: number, vignette: number) {
       const ctx = ctxs[ci], canvas = canvases[ci];
       const w = canvas.clientWidth, h = canvas.clientHeight, cx = w / 2, cy = h * 0.46;
       const bg = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(w, h) * 0.85);
@@ -121,8 +102,6 @@ export function PortfolioContent() {
         const idx = clamp(Math.round(p * (frames.length - 1)), 0, frames.length - 1);
         const f = frames[idx];
         if (f && f.complete) drawCover(ctx, f, w, h, 1, 0, alignY);
-      } else if (useHeroFallback && placeholder.complete && placeholder.naturalWidth) {
-        heroPlaceholder(ctx, w, h, p);
       }
       const v = ctx.createRadialGradient(cx, cy, h * 0.28, cx, cy, Math.max(w, h) * 0.78);
       v.addColorStop(0, "rgba(0,0,0,0)"); v.addColorStop(1, `rgba(5,8,15,${vignette})`);
@@ -136,7 +115,7 @@ export function PortfolioContent() {
       if (railFill) railFill.style.width = `${clamp(window.scrollY / (docH || 1)) * 100}%`;
 
       const hp = prog(heroWrapRef.current!);
-      if (hp > -0.05 && hp < 1.05) drawStage(0, orbit.frames, hp, 0.16, 0.82, true);
+      if (hp > -0.05 && hp < 1.05) drawStage(0, orbit.frames, hp, 0.16, 0.82);
       const revealW = 0.55;
       letters.forEach((el, i) => el.classList.toggle("is-in", hp > (i / letters.length) * revealW + 0.02));
       subtitle?.classList.toggle("is-in", hp > 0.52);
@@ -157,7 +136,6 @@ export function PortfolioContent() {
     let rafId = 0;
     function raf(time: number) { lenis.raf(time); update(); rafId = requestAnimationFrame(raf); }
     rafId = requestAnimationFrame(raf);
-    placeholder.onload = () => update();
 
     return () => {
       cancelAnimationFrame(rafId);
