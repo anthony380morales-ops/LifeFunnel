@@ -6,6 +6,7 @@ import { DetailsPage } from "@/pages/DetailsPage";
 import { ResultsPage } from "@/pages/ResultsPage";
 import { PortfolioContent } from "@/site/PortfolioContent";
 import { trackPageView } from "@/lib/analytics";
+import { recordVisit } from "@/lib/visitTracker";
 
 // Lazy-loaded so Supabase only downloads on /dashboard, keeping the funnel light.
 const DashboardApp = lazy(() =>
@@ -16,6 +17,7 @@ function AnalyticsRouteLogger() {
   const location = useLocation();
   useEffect(() => {
     trackPageView(location.pathname + location.search);
+    recordVisit(location.pathname);
   }, [location.pathname, location.search]);
   return null;
 }

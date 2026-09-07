@@ -1,0 +1,73 @@
+name: ORELIUS Daily Briefings
+
+# Fires ORELIUS's two daily automations at 8:00 AM Pacific:
+#   • Financial Intelligence briefing  -> POST /api/automation/finance-brief
+#   • NXG Life Group funnel briefing    -> POST /api/automation/nxg-brief
+#
+# GitHub cron is UTC and has no DST awareness, so we schedule at BOTH 15:00 UTC
+# (8 AM Pacific Daylight) and 16:00 UTC (8 AM Pacific Standard) and a guard step
+# only proceeds when the *local* Pacific hour is exactly 08 — so it runs once,
+# at 8 AM Pacific, all year round.
+#
+# Requires one repository secret:
+#   ORELIUS_SHARED_SECRET  — the same value as ORELIUS's LUCIUS_SHARED_SECRET.
+#   (Settings → Secrets and variables → Actions → New repository secret)
+
+on:
+  schedule:
+    - cron: "0 15 * * *"   # 08:00 Pacific Daylight Time (UTC-7)
+    - cron: "0 16 * * *"   # 08:00 Pacific Standard Time (UTC-8)
+  workflow_dispatch: {}     # allow manual runs any time
+
+concurrency:
+  group: orelius-daily-briefings
+  cancel-in-progress: false
+
+jobs:
+  briefings:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Only proceed at 8 AM Pacific (DST-correct)
+        id: gate
+        run: |
+          HOUR="$(TZ=America/Los_Angeles date +%H)"
+          echo "Pacific hour is $HOUR"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "Manual run — proceeding."
+            echo "go=true" >> "$GITHUB_OUTPUT"
+          elif [ "$HOUR" = "08" ]; then
+            echo "go=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Not 8 AM Pacific — skipping this trigger."
+            echo "go=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Wake ORELIUS (free tier cold start)
+        if: steps.gate.outputs.go == 'true'
+        run: |
+          curl -sS -m 120 --retry 4 --retry-delay 15 --retry-all-errors \
+            "https://orelius.onrender.com/health" || true
+          sleep 5
+
+      - name: Run Financial Intelligence briefing
+        if: steps.gate.outputs.go == 'true'
+        env:
+          SECRET: ${{ secrets.ORELIUS_SHARED_SECRET }}
+        run: |
+          if [ -z "$SECRET" ]; then
+            echo "::error::ORELIUS_SHARED_SECRET is not set in repo secrets."; exit 1
+          fi
+          curl -sS -m 180 --retry 3 --retry-delay 20 --retry-all-errors \
+            -X POST "https://orelius.onrender.com/api/automation/finance-brief" \
+            -H "X-Shared-Secret: $SECRET" \
+            -w "\nHTTP %{http_code}\n"
+
+      - name: Run NXG funnel briefing
+        if: steps.gate.outputs.go == 'true'
+        env:
+          SECRET: ${{ secrets.ORELIUS_SHARED_SECRET }}
+        run: |
+          curl -sS -m 180 --retry 3 --retry-delay 20 --retry-all-errors \
+            -X POST "https://orelius.onrender.com/api/automation/nxg-brief" \
+            -H "X-Shared-Secret: $SECRET" \
+            -w "\nHTTP %{http_code}\n"
